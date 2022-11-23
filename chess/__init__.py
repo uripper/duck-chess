@@ -695,6 +695,11 @@ class BaseBoard:
         """
         self._clear_board()
 
+    
+
+
+    
+    
     def pieces_mask(self, piece_type: PieceType, color: Color) -> Bitboard:
 
         if piece_type == PAWN:
@@ -710,7 +715,7 @@ class BaseBoard:
         elif piece_type == KING:
             bb = self.kings
         elif piece_type == DUCK:
-            bb = self.ducks
+            bb = self.ducks and not self.ducks
         else:
             assert False, f"expected PieceType, got {piece_type!r}"
 
@@ -923,6 +928,7 @@ class BaseBoard:
             self.kings ^= mask
         elif piece_type is DUCK:
             self.ducks ^= mask
+
         else:
             return None
 
@@ -1403,11 +1409,13 @@ class BaseBoard:
         board.rooks = self.rooks
         board.queens = self.queens
         board.kings = self.kings
+        board.ducks = self.ducks
 
         board.occupied_co[WHITE] = self.occupied_co[WHITE]
         board.occupied_co[BLACK] = self.occupied_co[BLACK]
         board.occupied = self.occupied
         board.promoted = self.promoted
+        board.duck_occupied = self.ducks
 
         board.ducks = self.ducks
 
@@ -1459,6 +1467,7 @@ class _BoardState(Generic[BoardT]):
         self.occupied_w = board.occupied_co[WHITE]
         self.occupied_b = board.occupied_co[BLACK]
         self.occupied = board.occupied
+        self.duck_occupied = board.ducks
 
         self.promoted = board.promoted
 
@@ -1469,6 +1478,7 @@ class _BoardState(Generic[BoardT]):
         self.fullmove_number = board.fullmove_number
         self.duck_turn = board.duck_turn
         self.ducks = board.ducks
+
 
     def restore(self, board: BoardT) -> None:
         board.pawns = self.pawns
@@ -1482,6 +1492,7 @@ class _BoardState(Generic[BoardT]):
         board.occupied_co[WHITE] = self.occupied_w
         board.occupied_co[BLACK] = self.occupied_b
         board.occupied = self.occupied
+        board.ducks = self.duck_occupied 
 
         board.promoted = self.promoted
 
@@ -1737,6 +1748,20 @@ class Board(BaseBoard):
         super().set_piece_at(square, piece, promoted=promoted)
         self.clear_stack()
             
+    
+    def duck_square(self) -> Square:
+        """
+        Creates a null square that cannot be passed through or landed on by any piece, but can be jumped over by knights
+        """
+        curr_duck = self.find_duck(self.turn)
+        if curr_duck is None:
+            curr_duck = self.find_duck(not self.turn)
+        if curr_duck is None:
+            pass
+        else:
+            return curr_duck
+    
+    
     def generate_duck_moves(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL, drop_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         """
         Generates all duck moves.
@@ -1746,7 +1771,7 @@ class Board(BaseBoard):
         """
         # You can place a duck on any square that is not occupied
         piece = self.pockets[self.duck_turn]
-        from_square = self.find_duck(self.duck_turn)
+        from_square = self.duck_square(self.duck_turn)
         if from_square == None:
             for to_square in scan_reversed(drop_mask & ~self.occupied):
                 yield Move.null()
@@ -1758,6 +1783,7 @@ class Board(BaseBoard):
         our_pieces = self.occupied_co[self.turn]
 
         # Generate piece moves.
+        curr_duck = self.duck_square(self.turn)
         non_pawns = our_pieces & ~self.pawns & from_mask
         for from_square in scan_reversed(non_pawns):
             moves = self.attacks_mask(from_square) & ~our_pieces & to_mask
@@ -1782,12 +1808,13 @@ class Board(BaseBoard):
 
             for to_square in scan_reversed(targets):
                 if square_rank(to_square) in [0, 7]:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
-                    yield Move(from_square, to_square, KNIGHT)
-                else:
-                    yield Move(from_square, to_square)
+                    if to_square != curr_duck:
+                        yield Move(from_square, to_square, QUEEN)
+                        yield Move(from_square, to_square, ROOK)
+                        yield Move(from_square, to_square, BISHOP)
+                        yield Move(from_square, to_square, KNIGHT)
+                    else:
+                        yield Move(from_square, to_square)
 
         # Prepare pawn advance generation.
         if self.turn == WHITE:
@@ -2967,7 +2994,7 @@ class Board(BaseBoard):
                 return "O-O"
 
         piece_type = self.piece_type_at(move.from_square)
-        assert piece_type, f"san() and lan() expect move to be legal or null, but got {move} in {self.fen()}"
+        # assert piece_type, f"san() and lan() expect move to be legal or null, but got {move} in {self.fen()}"
         capture = self.is_capture(move)
 
         if piece_type == PAWN:
@@ -4148,6 +4175,9 @@ class SquareSet:
             result[square] = True
         return result
 
+    
+    
+    
     def __bool__(self) -> bool:
         return bool(self.mask)
 
