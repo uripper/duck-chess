@@ -55,9 +55,9 @@ class DuckPocket:
         
     def add(self) -> None:
         if self.duck_turn:
-            self.duck = "d"
+            self.duck = "z"
         else:
-            self.duck = "D"
+            self.duck = "Z"
     def count(self) -> int:
         return len(self.duck)
     
@@ -125,20 +125,20 @@ class DuckBoard(chess.Board):
     def duck_push(self, move: chess.Move) -> None:
         if not self.duck_move:
             raise ValueError(f"Move a piece with push before moving the duck, move was {move}")
-        elif str(move).startswith("d") or str(move).startswith("D"):
+        elif str(move).startswith("z@") or str(move).startswith("Z@"):
             self.clear_duck()
             super().push(move)
             self.move_list.append(move)
             self.turn = not self.turn
             duck_loc = self.find_duck(not self.turn)
             self.remove_piece_at(duck_loc)
-            self.set_piece_at(duck_loc, chess.Piece.from_symbol("D" if self.turn else "d"))
+            self.set_piece_at(duck_loc, chess.Piece.from_symbol("Z" if self.turn else "z"))
             self.pockets[self.turn].remove()
             self.duck_move = False
                
     def f_push(self, move: chess.Move) -> None:
 
-        if str(move).startswith("d@") or str(move).startswith("D@"):
+        if str(move).startswith("z@") or str(move).startswith("Z@"):
             raise ValueError(f"Move a piece with push before moving the duck, move was {move}")
         else:
             super().push(move)

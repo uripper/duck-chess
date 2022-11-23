@@ -56,8 +56,8 @@ Is_duck = bool
 PieceType = int
 PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, DUCK] = range(1, 8)
 DUCK_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, DUCK] = range(1, 8)
-PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k", "d"]
-DUCK_SYMBOLS = [None, "p", "n", "b", "r", "q", "k", "d"]
+PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k", "z"]
+DUCK_SYMBOLS = [None, "p", "n", "b", "r", "q", "k", "z"]
 PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king", "duck"]
 DUCK_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king", "duck"] 
 
@@ -82,7 +82,7 @@ UNICODE_PIECE_SYMBOLS = {
     "Q": "♕", "q": "♛",
     "K": "♔", "k": "♚",
     "P": "♙", "p": "♟",
-    "D": "🦆", "d": "🦆",}
+    "Z": "🦆", "z": "🦆",}
 
 UNICODE_DUCK_SYMBOLS = {
     "R": "♖", "r": "♜",
@@ -91,7 +91,7 @@ UNICODE_DUCK_SYMBOLS = {
     "Q": "♕", "q": "♛",
     "K": "♔", "k": "♚",
     "P": "♙", "p": "♟",
-    "D": "🦆", "d": "🦆",}
+    "Z": "🦆", "z": "🦆",}
 
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
@@ -2363,7 +2363,7 @@ class Board(BaseBoard):
                 self._push_capture(move, capture_square, captured_piece_type, was_promoted)
 
         # Swap turn.
-        if str(move).startswith("D") or str(move).startswith("d"):
+        if str(move).startswith("Z") or str(move).startswith("z"):
             self.turn = not self.turn
 
 
