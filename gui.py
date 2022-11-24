@@ -10,6 +10,23 @@ import duck_chess
 import duck_chess.duck_pgn
 import duck_chess.variant
 
+"""
+
+Chess pieces from 
+Cburnett, CC BY-SA 3.0 <http://creativecommons.org/licenses/by-sa/3.0/>, via Wikimedia Commons
+
+Chess board from
+החבלן, CC0, via Wikimedia Commons
+
+SVG ducks all from https://www.svgrepo.com/
+
+"""
+
+
+
+
+
+
 MUSICVOLUME = .3
 
 LIGHT = (147, 139, 150)
@@ -29,59 +46,63 @@ pg.display.set_caption("Duck Chess")
 
 
 WKing = pg.image.load(
-    '\Pieces\king.svg').convert_alpha()
+    'Pieces\king.svg').convert_alpha()
 WKing = pg.transform.scale(WKing, (SQUARE_SIZE, SQUARE_SIZE))
 
 BKing = pg.image.load(
-    '\Pieces\BlackKing.svg').convert_alpha()
+    'Pieces\BlackKing.svg').convert_alpha()
 BKing = pg.transform.scale(BKing, (SQUARE_SIZE, SQUARE_SIZE))
 
 WKnight = pg.image.load(
-    '\Pieces\Knight.svg').convert_alpha()
+    'Pieces\Knight.svg').convert_alpha()
 WKnight = pg.transform.scale(WKnight, (SQUARE_SIZE, SQUARE_SIZE))
 
 BKnight = pg.image.load(
-    '\Pieces\BlackKnight.svg').convert_alpha()
+    'Pieces\BlackKnight.svg').convert_alpha()
 BKnight = pg.transform.scale(BKnight, (SQUARE_SIZE, SQUARE_SIZE))
 
 WRook = pg.image.load(
-    '\Pieces\Rook.svg').convert_alpha()
+    'Pieces\Rook.svg').convert_alpha()
 WRook = pg.transform.scale(WRook, (SQUARE_SIZE, SQUARE_SIZE))
 
 BRook = pg.image.load(
-    '\Pieces\BlackRook.svg').convert_alpha()
+    'Pieces\BlackRook.svg').convert_alpha()
 BRook = pg.transform.scale(BRook, (SQUARE_SIZE, SQUARE_SIZE))
 
 WQueen = pg.image.load(
-    '\Pieces\Queen.svg').convert_alpha()
+    'Pieces\Queen.svg').convert_alpha()
 WQueen = pg.transform.scale(WQueen, (SQUARE_SIZE, SQUARE_SIZE))
 
 BQueen = pg.image.load(
-    '\Pieces\BlackQueen.svg').convert_alpha()
+    'Pieces\BlackQueen.svg').convert_alpha()
 BQueen = pg.transform.scale(BQueen, (SQUARE_SIZE, SQUARE_SIZE))
 
 WBishop = pg.image.load(
-    '\Pieces\Bishop.svg').convert_alpha()
+    'Pieces\Bishop.svg').convert_alpha()
 WBishop = pg.transform.scale(WBishop, (SQUARE_SIZE, SQUARE_SIZE))
 
 BBishop = pg.image.load(
-    '\Pieces\BlackBishop.svg').convert_alpha()
+    'Pieces\BlackBishop.svg').convert_alpha()
 BBishop = pg.transform.scale(BBishop, (SQUARE_SIZE, SQUARE_SIZE))
 
 WPawn = pg.image.load(
-    '\Pieces\Pawn.svg').convert_alpha()
+    'Pieces\Pawn.svg').convert_alpha()
 WPawn = pg.transform.scale(WPawn, (SQUARE_SIZE, SQUARE_SIZE))
 
 BPawn = pg.image.load(
-    '\Pieces\BlackPawn.svg').convert_alpha()
+    'Pieces\BlackPawn.svg').convert_alpha()
 BPawn = pg.transform.scale(BPawn, (SQUARE_SIZE, SQUARE_SIZE))
 
 Duck = pg.image.load(
-    "\Pieces\character_robot_show.png").convert_alpha()
+    "Pieces\duck.svg").convert_alpha()
 Duck = pg.transform.scale(BPawn, (SQUARE_SIZE, SQUARE_SIZE))
 
+BDuck = pg.image.load(
+    "Pieces\duck2.svg").convert_alpha()
+BDuck = pg.transform.scale(BDuck, (SQUARE_SIZE, SQUARE_SIZE))
+
 pieces = [WKing, BKing, WKnight, BKnight, WRook, BRook,
-          WQueen, BQueen, WBishop, BBishop, WPawn, BPawn, Duck, Duck]
+          WQueen, BQueen, WBishop, BBishop, WPawn, BPawn, Duck, BDuck]
 
 
 font = pg.font.SysFont('Roboto', 25)
@@ -114,6 +135,23 @@ def rect_update(rect_moves):
 
     pg.display.update()
 
+def get_duck_moves():
+    from_move = "Z@"
+    possible_moves = []
+    rect_moves = []
+
+    for i in list(board.generate_duck_moves()):
+        uci = i.uci()[:2]
+        if uci == from_move:
+            possible_moves.append(i)
+    for i in possible_moves:
+
+        coord_index = coord_list.index(
+            i.uci()[2:4])
+        working_rect = rect_list[coord_index]
+        rect_moves.append(working_rect)
+    return rect_moves
+    
 
 def draw_squares(SCREEN):
     global rect_list, coord_list
@@ -198,7 +236,7 @@ def get_legal_moves(rect_clicked):
     from_move = clicked_coord
     possible_moves = []
 
-    for i in list(board.legal_moves):
+    for i in list(board.pseudo_legal_moves):
         uci = i.uci()[:2]
         if uci == from_move:
             possible_moves.append(i)
@@ -259,22 +297,28 @@ def draw_pieces(fen):
         elif i == "p":
             SCREEN.blit(BPawn, (row, col))
             row += SQUARE_SIZE
+        elif i == "z":
+            SCREEN.blit(BDuck, (row, col))
+            row += SQUARE_SIZE
+        elif i == "Z":
+            SCREEN.blit(Duck, (row, col))
+            row += SQUARE_SIZE
         else:
             row += SQUARE_SIZE
 
 
 def computer_move():
-    legal_moves = list(board.legal_moves)
+    legal_moves = list(board.pseudo_legal_moves)
     thinking = pg.time.get_ticks()
 
     try:
         move = random.choice(legal_moves)
-        board.push(move)
+        board.f_push(move)
     except IndexError:
         check_game_over()
         if GAMEOVER == False:
             move = legal_moves[0]
-            board.push(move)
+            board.f_push(move)
     finally:
         time_thinking = random.randint(500, 1000)
         while True:
@@ -354,11 +398,40 @@ while True:
                                         to_move = coord_list[index]
                                         total_move = from_move + to_move
                                         try:
-                                            board.push_san(total_move)
+                                            board.f_push(duck_chess.Move.from_uci(total_move))
                                         except ValueError:
                                             check_for_promotion(
                                                 to_move, CHOOSINGMOVE=True)
                                         SCREEN_update()
+                                        duck_move = True
+                                        while duck_move:
+                                            from_move = "Z@"
+                                            rect_moves = get_duck_moves()
+                                            rect_update(rect_moves)
+                                            for event in pg.event.get():
+                                                if event.type == pg.QUIT:
+                                                    pg.quit()
+                                                    sys.exit()
+
+                                                elif event.type == pg.MOUSEBUTTONDOWN:
+                                                    pos = pg.mouse.get_pos()
+                                                    rect_clicked = [
+                                                        rect for rect in rect_list if rect.collidepoint(pos)]
+
+                                                    if rect_clicked[0] in rect_moves:
+                                                        index = rect_list.index(
+                                                            rect_clicked[0])
+                                                        to_move = coord_list[index]
+                                                        total_move = from_move + to_move
+                                                        print(total_move)
+                                                        print(board.turn)
+                                                        board.duck_push(duck_chess.Move.from_uci(total_move))
+                                                        print(board.turn)
+                                                        SCREEN_update()
+                                                        FROMMOVE = False
+                                                        duck_move = False
+
+                                                
                                         FROMMOVE = False
                                         TOMOVE = False
                                         break
