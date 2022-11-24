@@ -1,6 +1,8 @@
 import pygame as pg
 import sys
 import random
+
+sys.path.insert(0, 'duck_chess')
 from pygame.constants import MOUSEBUTTONDOWN
 
 

@@ -1,3 +1,11 @@
+DUCK CHESS UNDER CONSTRUCTION
+========================================
+
+Below is documentation for niklasf's python-chess module, which this project was forked from. 
+Much of the information is inaccurate to Duck Chess until rewritten.
+
+
+
 python-chess: a chess library for Python
 ========================================
 
