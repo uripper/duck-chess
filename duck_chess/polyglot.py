@@ -1,4 +1,4 @@
-# This file is part of the python-chess library.
+# This file is part of the python-duck_chess library.
 # Copyright (C) 2012-2021 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-import chess
+import duck_chess
 import struct
 import os
 import mmap
@@ -238,56 +238,56 @@ class ZobristHasher:
         assert len(array) >= 781
         self.array = array
 
-    def hash_board(self, board: chess.BaseBoard) -> int:
+    def hash_board(self, board: duck_chess.BaseBoard) -> int:
         zobrist_hash = 0
 
         for pivot, squares in enumerate(board.occupied_co):
-            for square in chess.scan_reversed(squares):
-                piece_index = (typing.cast(chess.PieceType, board.piece_type_at(square)) - 1) * 2 + pivot
+            for square in duck_chess.scan_reversed(squares):
+                piece_index = (typing.cast(duck_chess.PieceType, board.piece_type_at(square)) - 1) * 2 + pivot
                 zobrist_hash ^= self.array[64 * piece_index + square]
 
         return zobrist_hash
 
-    def hash_castling(self, board: chess.Board) -> int:
+    def hash_castling(self, board: duck_chess.Board) -> int:
         zobrist_hash = 0
 
         # Hash in the castling flags.
-        if board.has_kingside_castling_rights(chess.WHITE):
+        if board.has_kingside_castling_rights(duck_chess.WHITE):
             zobrist_hash ^= self.array[768]
-        if board.has_queenside_castling_rights(chess.WHITE):
+        if board.has_queenside_castling_rights(duck_chess.WHITE):
             zobrist_hash ^= self.array[768 + 1]
-        if board.has_kingside_castling_rights(chess.BLACK):
+        if board.has_kingside_castling_rights(duck_chess.BLACK):
             zobrist_hash ^= self.array[768 + 2]
-        if board.has_queenside_castling_rights(chess.BLACK):
+        if board.has_queenside_castling_rights(duck_chess.BLACK):
             zobrist_hash ^= self.array[768 + 3]
 
         return zobrist_hash
 
-    def hash_ep_square(self, board: chess.Board) -> int:
+    def hash_ep_square(self, board: duck_chess.Board) -> int:
         # Hash in the en passant file.
         if board.ep_square:
             # But only if there's actually a pawn ready to capture it. Legality
             # of the potential capture is irrelevant.
-            if board.turn == chess.WHITE:
-                ep_mask = chess.shift_down(chess.BB_SQUARES[board.ep_square])
+            if board.turn == duck_chess.WHITE:
+                ep_mask = duck_chess.shift_down(duck_chess.BB_SQUARES[board.ep_square])
             else:
-                ep_mask = chess.shift_up(chess.BB_SQUARES[board.ep_square])
-            ep_mask = chess.shift_left(ep_mask) | chess.shift_right(ep_mask)
+                ep_mask = duck_chess.shift_up(duck_chess.BB_SQUARES[board.ep_square])
+            ep_mask = duck_chess.shift_left(ep_mask) | duck_chess.shift_right(ep_mask)
 
             if ep_mask & board.pawns & board.occupied_co[board.turn]:
-                return self.array[772 + chess.square_file(board.ep_square)]
+                return self.array[772 + duck_chess.square_file(board.ep_square)]
         return 0
 
-    def hash_turn(self, board: chess.Board) -> int:
+    def hash_turn(self, board: duck_chess.Board) -> int:
         # Hash in the turn.
-        return self.array[780] if board.turn == chess.WHITE else 0
+        return self.array[780] if board.turn == duck_chess.WHITE else 0
 
-    def __call__(self, board: chess.Board) -> int:
+    def __call__(self, board: duck_chess.Board) -> int:
         return (self.hash_board(board) ^ self.hash_castling(board) ^
                 self.hash_ep_square(board) ^ self.hash_turn(board))
 
 
-def zobrist_hash(board: chess.Board, *, _hasher: Callable[[chess.Board], int] = ZobristHasher(POLYGLOT_RANDOM_ARRAY)) -> int:
+def zobrist_hash(board: duck_chess.Board, *, _hasher: Callable[[duck_chess.Board], int] = ZobristHasher(POLYGLOT_RANDOM_ARRAY)) -> int:
     """
     Calculates the Polyglot Zobrist hash of the position.
 
@@ -308,7 +308,7 @@ class Entry(NamedTuple):
     raw_move: int
     """
     The raw binary representation of the move. Use
-    :data:`~chess.polyglot.Entry.move` instead.
+    :data:`~duck_chess.polyglot.Entry.move` instead.
     """
 
     weight: int
@@ -317,8 +317,8 @@ class Entry(NamedTuple):
     learn: int
     """Another integer value that can be used for extra information."""
 
-    move: chess.Move
-    """The :class:`~chess.Move`."""
+    move: duck_chess.Move
+    """The :class:`~duck_chess.Move`."""
 
 
 class _EmptyMmap(bytearray):
@@ -386,7 +386,7 @@ class MemoryMappedReader:
             drop = None
 
         # Entry with move (not normalized).
-        move = chess.Move(from_square, to_square, promotion, drop)
+        move = duck_chess.Move(from_square, to_square, promotion, drop)
         return Entry(key, raw_move, weight, learn, move)
 
     def __iter__(self) -> Iterator[Entry]:
@@ -413,13 +413,13 @@ class MemoryMappedReader:
     def __contains__(self, entry: Entry) -> bool:
         return any(current == entry for current in self.find_all(entry.key, minimum_weight=entry.weight))
 
-    def find_all(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = []) -> Iterator[Entry]:
+    def find_all(self, board: Union[duck_chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[duck_chess.Move] = []) -> Iterator[Entry]:
         """Seeks a specific position and yields corresponding entries."""
         try:
             key = int(board)  # type: ignore
-            context: Optional[chess.Board] = None
+            context: Optional[duck_chess.Board] = None
         except (TypeError, ValueError):
-            context = typing.cast(chess.Board, board)
+            context = typing.cast(duck_chess.Board, board)
             key = zobrist_hash(context)
 
         i = self.bisect_key_left(key)
@@ -436,7 +436,7 @@ class MemoryMappedReader:
                 continue
 
             if context:
-                move = context._from_chess960(context.chess960, entry.move.from_square, entry.move.to_square, entry.move.promotion, entry.move.drop)
+                move = context._from_duck_chess960(context.duck_chess960, entry.move.from_square, entry.move.to_square, entry.move.promotion, entry.move.drop)
                 entry = Entry(entry.key, entry.raw_move, entry.weight, entry.learn, move)
 
             if exclude_moves and entry.move in exclude_moves:
@@ -447,7 +447,7 @@ class MemoryMappedReader:
 
             yield entry
 
-    def find(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = []) -> Entry:
+    def find(self, board: Union[duck_chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[duck_chess.Move] = []) -> Entry:
         """
         Finds the main entry for the given position or Zobrist hash.
 
@@ -458,7 +458,7 @@ class MemoryMappedReader:
         *minimum_weight* ``0`` to select all entries.
 
         :raises: :exc:`IndexError` if no entries are found. Use
-            :func:`~chess.polyglot.MemoryMappedReader.get()` if you prefer to
+            :func:`~duck_chess.polyglot.MemoryMappedReader.get()` if you prefer to
             get ``None`` instead of an exception.
         """
         try:
@@ -466,13 +466,13 @@ class MemoryMappedReader:
         except ValueError:
             raise IndexError()
 
-    def get(self, board: Union[chess.Board, int], default: Optional[Entry] = None, *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = []) -> Optional[Entry]:
+    def get(self, board: Union[duck_chess.Board, int], default: Optional[Entry] = None, *, minimum_weight: int = 1, exclude_moves: Container[duck_chess.Move] = []) -> Optional[Entry]:
         try:
             return self.find(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)
         except IndexError:
             return default
 
-    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = [], random: Optional[random.Random] = None) -> Entry:
+    def choice(self, board: Union[duck_chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[duck_chess.Move] = [], random: Optional[random.Random] = None) -> Entry:
         """
         Uniformly selects a random entry for the given position.
 
@@ -489,7 +489,7 @@ class MemoryMappedReader:
 
         return chosen_entry
 
-    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Container[chess.Move] = [], random: Optional[random.Random] = None) -> Entry:
+    def weighted_choice(self, board: Union[duck_chess.Board, int], *, exclude_moves: Container[duck_chess.Move] = [], random: Optional[random.Random] = None) -> Entry:
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.
@@ -527,12 +527,12 @@ def open_reader(path: PathLike) -> MemoryMappedReader:
     The following example opens a book to find all entries for the start
     position:
 
-    >>> import chess
-    >>> import chess.polyglot
+    >>> import duck_chess
+    >>> import duck_chess.polyglot
     >>>
-    >>> board = chess.Board()
+    >>> board = duck_chess.Board()
     >>>
-    >>> with chess.polyglot.open_reader("data/polyglot/performance.bin") as reader:
+    >>> with duck_chess.polyglot.open_reader("data/polyglot/performance.bin") as reader:
     ...    for entry in reader.find_all(board):
     ...        print(entry.move, entry.weight, entry.learn)
     e2e4 1 0

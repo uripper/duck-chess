@@ -1,4 +1,4 @@
-# This file is part of the python-chess library.
+# This file is part of the python-duck_chess library.
 # Copyright (C) 2015 Jean-Noël Avila <jn.avila@free.fr>
 # Copyright (C) 2015-2021 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
@@ -28,7 +28,7 @@ import os.path
 import struct
 import typing
 
-import chess
+import duck_chess
 
 from types import TracebackType
 from typing import BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
@@ -82,18 +82,18 @@ NS_FLAG = 2
 NW_SE_FLAG = 4
 
 ITOSQ = [
-    chess.H7, chess.G7, chess.F7, chess.E7,
-    chess.H6, chess.G6, chess.F6, chess.E6,
-    chess.H5, chess.G5, chess.F5, chess.E5,
-    chess.H4, chess.G4, chess.F4, chess.E4,
-    chess.H3, chess.G3, chess.F3, chess.E3,
-    chess.H2, chess.G2, chess.F2, chess.E2,
-    chess.D7, chess.C7, chess.B7, chess.A7,
-    chess.D6, chess.C6, chess.B6, chess.A6,
-    chess.D5, chess.C5, chess.B5, chess.A5,
-    chess.D4, chess.C4, chess.B4, chess.A4,
-    chess.D3, chess.C3, chess.B3, chess.A3,
-    chess.D2, chess.C2, chess.B2, chess.A2,
+    duck_chess.H7, duck_chess.G7, duck_chess.F7, duck_chess.E7,
+    duck_chess.H6, duck_chess.G6, duck_chess.F6, duck_chess.E6,
+    duck_chess.H5, duck_chess.G5, duck_chess.F5, duck_chess.E5,
+    duck_chess.H4, duck_chess.G4, duck_chess.F4, duck_chess.E4,
+    duck_chess.H3, duck_chess.G3, duck_chess.F3, duck_chess.E3,
+    duck_chess.H2, duck_chess.G2, duck_chess.F2, duck_chess.E2,
+    duck_chess.D7, duck_chess.C7, duck_chess.B7, duck_chess.A7,
+    duck_chess.D6, duck_chess.C6, duck_chess.B6, duck_chess.A6,
+    duck_chess.D5, duck_chess.C5, duck_chess.B5, duck_chess.A5,
+    duck_chess.D4, duck_chess.C4, duck_chess.B4, duck_chess.A4,
+    duck_chess.D3, duck_chess.C3, duck_chess.B3, duck_chess.A3,
+    duck_chess.D2, duck_chess.C2, duck_chess.B2, duck_chess.A2,
 ]
 
 ENTRIES_PER_BLOCK = 16 * 1024
@@ -124,29 +124,29 @@ def idx_is_empty(x: int) -> int:
     return x == -1
 
 
-def flip_type(x: chess.Square, y: chess.Square) -> int:
+def flip_type(x: duck_chess.Square, y: duck_chess.Square) -> int:
     ret = 0
 
-    if chess.square_file(x) > 3:
+    if duck_chess.square_file(x) > 3:
         x = flip_we(x)
         y = flip_we(y)
         ret |= 1
 
-    if chess.square_rank(x) > 3:
+    if duck_chess.square_rank(x) > 3:
         x = flip_ns(x)
         y = flip_ns(y)
         ret |= 2
 
-    rowx = chess.square_rank(x)
-    colx = chess.square_file(x)
+    rowx = duck_chess.square_rank(x)
+    colx = duck_chess.square_file(x)
 
     if rowx > colx:
         x = flip_nw_se(x)
         y = flip_nw_se(y)
         ret |= 4
 
-    rowy = chess.square_rank(y)
-    coly = chess.square_file(y)
+    rowy = duck_chess.square_rank(y)
+    coly = duck_chess.square_file(y)
     if rowx == colx and rowy > coly:
         x = flip_nw_se(x)
         y = flip_nw_se(y)
@@ -169,8 +169,8 @@ def init_pp48_idx() -> Tuple[List[List[int]], List[int], List[int]]:
     pp48_sq_y = [NOSQUARE] * MAX_PP48_INDEX
 
     idx = 0
-    for a in range(chess.H7, chess.A2 - 1, -1):
-        for b in range(a - 1, chess.A2 - 1, -1):
+    for a in range(duck_chess.H7, duck_chess.A2 - 1, -1):
+        for b in range(a - 1, duck_chess.A2 - 1, -1):
             i = flip_we(flip_ns(a)) - 8
             j = flip_we(flip_ns(b)) - 8
 
@@ -341,11 +341,11 @@ def init_ppidx() -> Tuple[List[List[int]], List[int], List[int]]:
     pp_lo48 = [-1] * MAX_PPINDEX
 
     idx = 0
-    for a in range(chess.H7, chess.A2 - 1, -1):
+    for a in range(duck_chess.H7, duck_chess.A2 - 1, -1):
         if in_queenside(a):
             continue
 
-        for b in range(a - 1, chess.A2 - 1, -1):
+        for b in range(a - 1, duck_chess.A2 - 1, -1):
             anchor = 0
             loosen = 0
 
@@ -370,24 +370,24 @@ def init_ppidx() -> Tuple[List[List[int]], List[int], List[int]]:
 PPIDX, PP_HI24, PP_LO48 = init_ppidx()
 
 
-def norm_kkindex(x: chess.Square, y: chess.Square) -> Tuple[int, int]:
-    if chess.square_file(x) > 3:
+def norm_kkindex(x: duck_chess.Square, y: duck_chess.Square) -> Tuple[int, int]:
+    if duck_chess.square_file(x) > 3:
         x = flip_we(x)
         y = flip_we(y)
 
-    if chess.square_rank(x) > 3:
+    if duck_chess.square_rank(x) > 3:
         x = flip_ns(x)
         y = flip_ns(y)
 
-    rowx = chess.square_rank(x)
-    colx = chess.square_file(x)
+    rowx = duck_chess.square_rank(x)
+    colx = duck_chess.square_file(x)
 
     if rowx > colx:
         x = flip_nw_se(x)
         y = flip_nw_se(y)
 
-    rowy = chess.square_rank(y)
-    coly = chess.square_file(y)
+    rowy = duck_chess.square_rank(y)
+    coly = duck_chess.square_file(y)
 
     if rowx == colx and rowy > coly:
         x = flip_nw_se(x)
@@ -403,7 +403,7 @@ def init_kkidx() -> Tuple[List[List[int]], List[int], List[int]]:
     for x in range(64):
         for y in range(64):
             # Check if x to y is legal.
-            if x != y and not chess.BB_KING_ATTACKS[x] & chess.BB_SQUARES[y]:
+            if x != y and not duck_chess.BB_KING_ATTACKS[x] & duck_chess.BB_SQUARES[y]:
                 # Normalize.
                 i, j = norm_kkindex(x, y)
 
@@ -458,7 +458,7 @@ def kapkb_pctoindex(c: Request) -> int:
     bk = c.black_piece_squares[0]
     ba = c.black_piece_squares[1]
 
-    if not (chess.A2 <= pawn < chess.A8):
+    if not (duck_chess.A2 <= pawn < duck_chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -512,7 +512,7 @@ def kabkp_pctoindex(c: Request) -> int:
     bk = c.black_piece_squares[0]
     wb = c.white_piece_squares[2]
 
-    if not (chess.A2 <= pawn < chess.A8):
+    if not (duck_chess.A2 <= pawn < duck_chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -981,7 +981,7 @@ def kapk_pctoindex(c: Request) -> int:
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not (chess.A2 <= pawn < chess.A8):
+    if not (duck_chess.A2 <= pawn < duck_chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -1035,7 +1035,7 @@ def kakp_pctoindex(c: Request) -> int:
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not (chess.A2 <= pawn < chess.A8):
+    if not (duck_chess.A2 <= pawn < duck_chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -1122,7 +1122,7 @@ def kpk_pctoindex(c: Request) -> int:
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not (chess.A2 <= pawn < chess.A8):
+    if not (duck_chess.A2 <= pawn < duck_chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -1512,7 +1512,7 @@ class Request:
     black_piece_types: List[int]
     is_reversed: bool
 
-    def __init__(self, white_squares: List[int], white_types: List[chess.PieceType], black_squares: List[int], black_types: List[chess.PieceType], side: int, epsq: int):
+    def __init__(self, white_squares: List[int], white_types: List[duck_chess.PieceType], black_squares: List[int], black_types: List[duck_chess.PieceType], side: int, epsq: int):
         self.white_squares, self.white_types = sortlists(white_squares, white_types)
         self.black_squares, self.black_types = sortlists(black_squares, black_types)
         self.realside = side
@@ -1551,7 +1551,7 @@ class PythonTablebase:
         for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
             self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
 
-    def probe_dtm(self, board: chess.Board) -> int:
+    def probe_dtm(self, board: duck_chess.Board) -> int:
         """
         Probes for depth to mate information.
 
@@ -1561,18 +1561,18 @@ class PythonTablebase:
 
         In the example position, white to move will get mated in 10 half-moves:
 
-        >>> import chess
-        >>> import chess.gaviota
+        >>> import duck_chess
+        >>> import duck_chess.gaviota
         >>>
-        >>> with chess.gaviota.open_tablebase("data/gaviota") as tablebase:
-        ...     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
+        >>> with duck_chess.gaviota.open_tablebase("data/gaviota") as tablebase:
+        ...     board = duck_chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
         ...     print(tablebase.probe_dtm(board))
         ...
         -10
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.gaviota.MissingTableError`) if the probe fails. Use
-            :func:`~chess.gaviota.PythonTablebase.get_dtm()` if you prefer
+            :exc:`duck_chess.gaviota.MissingTableError`) if the probe fails. Use
+            :func:`~duck_chess.gaviota.PythonTablebase.get_dtm()` if you prefer
             to get ``None`` instead of an exception.
 
             Note that probing a corrupted table file is undefined behavior.
@@ -1582,19 +1582,19 @@ class PythonTablebase:
             raise KeyError(f"gaviota tables do not contain positions with castling rights: {board.fen()}")
 
         # Supports only up to 5 pieces.
-        if chess.popcount(board.occupied) > 5:
-            raise KeyError(f"gaviota tables support up to 5 pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
+        if duck_chess.popcount(board.occupied) > 5:
+            raise KeyError(f"gaviota tables support up to 5 pieces, not {duck_chess.popcount(board.occupied)}: {board.fen()}")
 
         # KvK is a draw.
         if board.occupied == board.kings:
             return 0
 
         # Prepare the tablebase request.
-        white_squares = list(chess.SquareSet(board.occupied_co[chess.WHITE]))
-        white_types = [typing.cast(chess.PieceType, board.piece_type_at(sq)) for sq in white_squares]
-        black_squares = list(chess.SquareSet(board.occupied_co[chess.BLACK]))
-        black_types = [typing.cast(chess.PieceType, board.piece_type_at(sq)) for sq in black_squares]
-        side = 0 if (board.turn == chess.WHITE) else 1
+        white_squares = list(duck_chess.SquareSet(board.occupied_co[duck_chess.WHITE]))
+        white_types = [typing.cast(duck_chess.PieceType, board.piece_type_at(sq)) for sq in white_squares]
+        black_squares = list(duck_chess.SquareSet(board.occupied_co[duck_chess.BLACK]))
+        black_types = [typing.cast(duck_chess.PieceType, board.piece_type_at(sq)) for sq in black_squares]
+        side = 0 if (board.turn == duck_chess.WHITE) else 1
         epsq = board.ep_square if board.ep_square else NOSQUARE
         req = Request(white_squares, white_types, black_squares, black_types, side, epsq)
 
@@ -1630,31 +1630,31 @@ class PythonTablebase:
             # Draw.
             return 0
 
-    def get_dtm(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_dtm(self, board: duck_chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_dtm(board)
         except KeyError:
             return default
 
-    def probe_wdl(self, board: chess.Board) -> int:
+    def probe_wdl(self, board: duck_chess.Board) -> int:
         """
         Probes for win/draw/loss information.
 
         Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
         and ``-1`` if the side to move is losing.
 
-        >>> import chess
-        >>> import chess.gaviota
+        >>> import duck_chess
+        >>> import duck_chess.gaviota
         >>>
-        >>> with chess.gaviota.open_tablebase("data/gaviota") as tablebase:
-        ...     board = chess.Board("8/4k3/8/B7/8/8/8/4K3 w - - 0 1")
+        >>> with duck_chess.gaviota.open_tablebase("data/gaviota") as tablebase:
+        ...     board = duck_chess.Board("8/4k3/8/B7/8/8/8/4K3 w - - 0 1")
         ...     print(tablebase.probe_wdl(board))
         ...
         0
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.gaviota.MissingTableError`) if the probe fails. Use
-            :func:`~chess.gaviota.PythonTablebase.get_wdl()` if you prefer
+            :exc:`duck_chess.gaviota.MissingTableError`) if the probe fails. Use
+            :func:`~duck_chess.gaviota.PythonTablebase.get_wdl()` if you prefer
             to get ``None`` instead of an exception.
 
             Note that probing a corrupted table file is undefined behavior.
@@ -1671,15 +1671,15 @@ class PythonTablebase:
         else:
             return -1
 
-    def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_wdl(self, board: duck_chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_wdl(board)
         except KeyError:
             return default
 
     def _setup_tablebase(self, req: Request) -> BinaryIO:
-        white_letters = "".join(chess.piece_symbol(i) for i in req.white_types)
-        black_letters = "".join(chess.piece_symbol(i) for i in req.black_types)
+        white_letters = "".join(duck_chess.piece_symbol(i) for i in req.white_types)
+        black_letters = "".join(duck_chess.piece_symbol(i) for i in req.black_types)
 
         if (white_letters + black_letters) in self.available_tables:
             req.is_reversed = False
@@ -1768,7 +1768,7 @@ class PythonTablebase:
             if (j > -1) and (ys[j] == xed):
                 # Find capturers (i).
                 for i in range(len(xs)):
-                    if xp[i] == chess.PAWN and (xs[i] == capturer_a or xs[i] == capturer_b):
+                    if xp[i] == duck_chess.PAWN and (xs[i] == capturer_a or xs[i] == capturer_b):
                         epscore = iFORBID
 
                         # Copy position.
@@ -1913,7 +1913,7 @@ class PythonTablebase:
 class NativeTablebase:
     """
     Provides access to Gaviota tablebases via the shared library libgtb.
-    Has the same interface as :class:`~chess.gaviota.PythonTablebase`.
+    Has the same interface as :class:`~duck_chess.gaviota.PythonTablebase`.
     """
 
     def __init__(self, libgtb: ctypes.CDLL) -> None:
@@ -1977,35 +1977,35 @@ class NativeTablebase:
     def _tbcache_restart(self, cache_mem: int, wdl_fraction: int) -> None:
         self.libgtb.tbcache_restart(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
 
-    def probe_dtm(self, board: chess.Board) -> int:
+    def probe_dtm(self, board: duck_chess.Board) -> int:
         return self._probe_hard(board)
 
-    def probe_wdl(self, board: chess.Board) -> int:
+    def probe_wdl(self, board: duck_chess.Board) -> int:
         return self._probe_hard(board, wdl_only=True)
 
-    def get_dtm(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_dtm(self, board: duck_chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_dtm(board)
         except KeyError:
             return default
 
-    def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_wdl(self, board: duck_chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_wdl(board)
         except KeyError:
             return default
 
-    def _probe_hard(self, board: chess.Board, wdl_only: bool = False) -> int:
+    def _probe_hard(self, board: duck_chess.Board, wdl_only: bool = False) -> int:
         if board.is_insufficient_material():
             return 0
 
         if board.castling_rights:
             raise KeyError(f"gaviota tables do not contain positions with castling rights: {board.fen()}")
 
-        if chess.popcount(board.occupied) > 5:
-            raise KeyError(f"gaviota tables support up to 5 pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
+        if duck_chess.popcount(board.occupied) > 5:
+            raise KeyError(f"gaviota tables support up to 5 pieces, not {duck_chess.popcount(board.occupied)}: {board.fen()}")
 
-        stm = ctypes.c_uint(0 if board.turn == chess.WHITE else 1)
+        stm = ctypes.c_uint(0 if board.turn == duck_chess.WHITE else 1)
         ep_square = ctypes.c_uint(board.ep_square if board.ep_square else 64)
         castling = ctypes.c_uint(0)
 
@@ -2013,9 +2013,9 @@ class NativeTablebase:
         c_wp = (ctypes.c_ubyte * 17)()
 
         i = -1
-        for i, square in enumerate(chess.SquareSet(board.occupied_co[chess.WHITE])):
+        for i, square in enumerate(duck_chess.SquareSet(board.occupied_co[duck_chess.WHITE])):
             c_ws[i] = square
-            c_wp[i] = typing.cast(chess.PieceType, board.piece_type_at(square))
+            c_wp[i] = typing.cast(duck_chess.PieceType, board.piece_type_at(square))
 
         c_ws[i + 1] = 64
         c_wp[i + 1] = 0
@@ -2024,9 +2024,9 @@ class NativeTablebase:
         c_bp = (ctypes.c_ubyte * 17)()
 
         i = -1
-        for i, square in enumerate(chess.SquareSet(board.occupied_co[chess.BLACK])):
+        for i, square in enumerate(duck_chess.SquareSet(board.occupied_co[duck_chess.BLACK])):
             c_bs[i] = square
-            c_bp[i] = typing.cast(chess.PieceType, board.piece_type_at(square))
+            c_bp[i] = typing.cast(duck_chess.PieceType, board.piece_type_at(square))
 
         c_bs[i + 1] = 64
         c_bp[i + 1] = 0
@@ -2051,11 +2051,11 @@ class NativeTablebase:
 
         # White mates.
         if ret and info.value == 1:
-            return dtm if board.turn == chess.WHITE else -dtm
+            return dtm if board.turn == duck_chess.WHITE else -dtm
 
         # Black mates.
         if ret and info.value == 2:
-            return dtm if board.turn == chess.BLACK else -dtm
+            return dtm if board.turn == duck_chess.BLACK else -dtm
 
         raise KeyError(f"gaviota probe failed for {board.fen()}")
 
@@ -2077,7 +2077,7 @@ def open_tablebase_native(directory: str, *, libgtb: Optional[str] = None, Libra
     """
     Opens a collection of tables for probing using libgtb.
 
-    In most cases :func:`~chess.gaviota.open_tablebase()` should be used.
+    In most cases :func:`~duck_chess.gaviota.open_tablebase()` should be used.
     Use this function only if you do not want to downgrade to pure Python
     tablebase probing.
 

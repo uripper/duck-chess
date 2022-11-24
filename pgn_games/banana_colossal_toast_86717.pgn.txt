@@ -1,0 +1,21 @@
+
+[StartFen4 "2PC"]
+[Variant "FFA"]
+[RuleVariants "DuckChess EnPassant Play4Mate Stalemate=win"]
+                
+
+1. g5-g7Θ-g9 .. e10-e8Θg9-g5
+2. j5-j6Θg5-f7 .. d10-d9Θf7-f9
+3. Bi4-k6Θf9-h9 .. Ne11-f9Θh9-i4
+4. Bk6-j5Θi4-d8 .. j10-j9Θd8-h7
+5. Qg4-g5Θh7-k7 .. Nf9-d8Θk7-j10
+6. Nj4-k6Θj10-f6 .. h10-h8Θf6-j10
+7. Rk4-j4Θj10-e7 .. Rd11-e11Θe7-h6
+8. Rj4-i4Θh6-i9 .. Qg11-h10Θi9-i6
+9. Nk6-i7Θi6-d7 .. Bf11-e10Θd7-k9
+10. e5-e7Θk9-i6 .. Qh10xe7Θi6-k6
+11. h5-h6Θk6-f6 .. Be10-f9Θf6-d6
+12. Qg5-f6Θd6-i8 .. k10-k8Θi8-f11
+13. k5-k6Θf11-d7 .. Bi11-f8Θd7-h10
+14. Bj5-h7Θh10-i6 .. Bf8xg7Θi6-k4
+15. Qf6-e5Θk4-h5 .. Qe7xKh4#

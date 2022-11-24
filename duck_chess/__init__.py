@@ -1,4 +1,4 @@
-# This file is part of the python-chess library.
+# This file is part of the python-duck_chess library.
 # Copyright (C) 2012-2021 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """
-A chess library with move generation and validation,
+A duck_chess library with move generation and validation,
 Polyglot opening book probing, PGN reading and writing,
 Gaviota tablebase probing,
 Syzygy tablebase probing, and XBoard/UCI engine communication.
@@ -98,10 +98,10 @@ FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
 RANK_NAMES = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-"""The FEN for the standard chess starting position."""
+"""The FEN for the standard duck_chess starting position."""
 
 STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-"""The board part of the FEN for the standard chess starting position."""
+"""The board part of the FEN for the standard duck_chess starting position."""
 
 
 class Status(enum.IntFlag):
@@ -143,31 +143,31 @@ class Termination(enum.Enum):
     """Enum with reasons for a game to be over."""
 
     CHECKMATE = enum.auto()
-    """See :func:`chess.Board.is_checkmate()`."""
+    """See :func:`duck_chess.Board.is_checkmate()`."""
     STALEMATE = enum.auto()
-    """See :func:`chess.Board.is_stalemate()`."""
+    """See :func:`duck_chess.Board.is_stalemate()`."""
     INSUFFICIENT_MATERIAL = enum.auto()
-    """See :func:`chess.Board.is_insufficient_material()`."""
+    """See :func:`duck_chess.Board.is_insufficient_material()`."""
     SEVENTYFIVE_MOVES = enum.auto()
-    """See :func:`chess.Board.is_seventyfive_moves()`."""
+    """See :func:`duck_chess.Board.is_seventyfive_moves()`."""
     FIVEFOLD_REPETITION = enum.auto()
-    """See :func:`chess.Board.is_fivefold_repetition()`."""
+    """See :func:`duck_chess.Board.is_fivefold_repetition()`."""
     FIFTY_MOVES = enum.auto()
-    """See :func:`chess.Board.can_claim_fifty_moves()`."""
+    """See :func:`duck_chess.Board.can_claim_fifty_moves()`."""
     THREEFOLD_REPETITION = enum.auto()
-    """See :func:`chess.Board.can_claim_threefold_repetition()`."""
+    """See :func:`duck_chess.Board.can_claim_threefold_repetition()`."""
     VARIANT_WIN = enum.auto()
-    """See :func:`chess.Board.is_variant_win()`."""
+    """See :func:`duck_chess.Board.is_variant_win()`."""
     VARIANT_LOSS = enum.auto()
-    """See :func:`chess.Board.is_variant_loss()`."""
+    """See :func:`duck_chess.Board.is_variant_loss()`."""
     VARIANT_DRAW = enum.auto()
-    """See :func:`chess.Board.is_variant_draw()`."""
+    """See :func:`duck_chess.Board.is_variant_draw()`."""
 
 @dataclasses.dataclass
 class Outcome:
     """
     Information about the outcome of an ended game, usually obtained from
-    :func:`chess.Board.outcome()`.
+    :func:`duck_chess.Board.outcome()`.
     """
 
     termination: Termination
@@ -313,21 +313,21 @@ def scan_reversed(bb: Bitboard) -> Iterator[Square]:
 popcount: Callable[[Bitboard], int] = getattr(int, "bit_count", lambda bb: bin(bb).count("1"))
 
 def flip_vertical(bb: Bitboard) -> Bitboard:
-    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
+    # https://www.duck_chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
     bb = ((bb >> 8) & 0x00ff_00ff_00ff_00ff) | ((bb & 0x00ff_00ff_00ff_00ff) << 8)
     bb = ((bb >> 16) & 0x0000_ffff_0000_ffff) | ((bb & 0x0000_ffff_0000_ffff) << 16)
     bb = (bb >> 32) | ((bb & 0x0000_0000_ffff_ffff) << 32)
     return bb
 
 def flip_horizontal(bb: Bitboard) -> Bitboard:
-    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#MirrorHorizontally
+    # https://www.duck_chessprogramming.org/Flipping_Mirroring_and_Rotating#MirrorHorizontally
     bb = ((bb >> 1) & 0x5555_5555_5555_5555) | ((bb & 0x5555_5555_5555_5555) << 1)
     bb = ((bb >> 2) & 0x3333_3333_3333_3333) | ((bb & 0x3333_3333_3333_3333) << 2)
     bb = ((bb >> 4) & 0x0f0f_0f0f_0f0f_0f0f) | ((bb & 0x0f0f_0f0f_0f0f_0f0f) << 4)
     return bb
 
 def flip_diagonal(bb: Bitboard) -> Bitboard:
-    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheDiagonal
+    # https://www.duck_chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheDiagonal
     t = (bb ^ (bb << 28)) & 0x0f0f_0f0f_0000_0000
     bb = bb ^ t ^ (t >> 28)
     t = (bb ^ (bb << 14)) & 0x3333_0000_3333_0000
@@ -337,7 +337,7 @@ def flip_diagonal(bb: Bitboard) -> Bitboard:
     return bb
 
 def flip_anti_diagonal(bb: Bitboard) -> Bitboard:
-    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheAntidiagonal
+    # https://www.duck_chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheAntidiagonal
     t = bb ^ (bb << 36)
     bb = bb ^ ((t ^ (bb >> 36)) & 0xf0f0_f0f0_0f0f_0f0f)
     t = (bb ^ (bb << 18)) & 0xcccc_0000_cccc_0000
@@ -512,13 +512,13 @@ class Piece:
         return self.symbol()
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.piece(self, size=45)
+        import duck_chess.svg
+        return duck_chess.svg.piece(self, size=45)
 
     @classmethod
     def from_symbol(cls, symbol: str) -> Piece:
         """
-        Creates a :class:`~chess.Piece` instance from a piece symbol.
+        Creates a :class:`~duck_chess.Piece` instance from a piece symbol.
 
         :raises: :exc:`ValueError` if the symbol is invalid.
         """
@@ -618,9 +618,9 @@ class Move:
         forfeits en passant capturing). Null moves evaluate to ``False`` in
         boolean contexts.
 
-        >>> import chess
+        >>> import duck_chess
         >>>
-        >>> bool(chess.Move.null())
+        >>> bool(duck_chess.Move.null())
         False
         """
         return cls(0, 0)
@@ -630,10 +630,10 @@ BaseBoardT = TypeVar("BaseBoardT", bound="BaseBoard")
 
 class BaseBoard:
     """
-    A board representing the position of chess pieces. See
-    :class:`~chess.Board` for a full board with move generation.
+    A board representing the position of duck_chess pieces. See
+    :class:`~duck_chess.Board` for a full board with move generation.
 
-    The board is initialized with the standard chess starting position, unless
+    The board is initialized with the standard duck_chess starting position, unless
     otherwise specified in the optional *board_fen* argument. If *board_fen*
     is ``None``, an empty board is created.
     """
@@ -666,8 +666,8 @@ class BaseBoard:
         """
         Resets pieces to the starting position.
 
-        :class:`~chess.Board` also resets the move stack, but not turn,
-        castling rights and move counters. Use :func:`chess.Board.reset()` to
+        :class:`~duck_chess.Board` also resets the move stack, but not turn,
+        castling rights and move counters. Use :func:`duck_chess.Board.reset()` to
         fully restore the starting position.
         """
         self._reset_board()
@@ -691,7 +691,7 @@ class BaseBoard:
         """
         Clears the board.
 
-        :class:`~chess.Board` also clears the move stack.
+        :class:`~duck_chess.Board` also clears the move stack.
         """
         self._clear_board()
 
@@ -725,12 +725,12 @@ class BaseBoard:
         """
         Gets pieces of the given type and color.
 
-        Returns a :class:`set of squares <chess.SquareSet>`.
+        Returns a :class:`set of squares <duck_chess.SquareSet>`.
         """
         return SquareSet(self.pieces_mask(piece_type, color))
 
     def piece_at(self, square: Square) -> Optional[Piece]:
-        """Gets the :class:`piece <chess.Piece>` at the given square."""
+        """Gets the :class:`piece <duck_chess.Piece>` at the given square."""
         piece_type = self.piece_type_at(square)
         
         if piece_type:
@@ -811,7 +811,7 @@ class BaseBoard:
         There will be no attacks if the square is empty. Pinned pieces are
         still attacking other squares.
 
-        Returns a :class:`set of squares <chess.SquareSet>`.
+        Returns a :class:`set of squares <duck_chess.SquareSet>`.
         """
         return SquareSet(self.attacks_mask(square))
 
@@ -851,7 +851,7 @@ class BaseBoard:
 
         Pinned pieces still count as attackers.
 
-        Returns a :class:`set of squares <chess.SquareSet>`.
+        Returns a :class:`set of squares <duck_chess.SquareSet>`.
         """
         return SquareSet(self.attackers_mask(color, square))
 
@@ -881,12 +881,12 @@ class BaseBoard:
         Detects an absolute pin (and its direction) of the given square to
         the king of the given color.
 
-        >>> import chess
+        >>> import duck_chess
         >>>
-        >>> board = chess.Board("rnb1k2r/ppp2ppp/5n2/3q4/1b1P4/2N5/PP3PPP/R1BQKBNR w KQkq - 3 7")
-        >>> board.is_pinned(chess.WHITE, chess.C3)
+        >>> board = duck_chess.Board("rnb1k2r/ppp2ppp/5n2/3q4/1b1P4/2N5/PP3PPP/R1BQKBNR w KQkq - 3 7")
+        >>> board.is_pinned(duck_chess.WHITE, duck_chess.C3)
         True
-        >>> direction = board.pin(chess.WHITE, chess.C3)
+        >>> direction = board.pin(duck_chess.WHITE, duck_chess.C3)
         >>> direction
         SquareSet(0x0000_0001_0204_0810)
         >>> print(direction)
@@ -899,7 +899,7 @@ class BaseBoard:
         . . . 1 . . . .
         . . . . 1 . . .
 
-        Returns a :class:`set of squares <chess.SquareSet>` that mask the rank,
+        Returns a :class:`set of squares <duck_chess.SquareSet>` that mask the rank,
         file or diagonal of the pin. If there is no pin, then a mask of the
         entire board is returned.
         """
@@ -944,9 +944,9 @@ class BaseBoard:
     def remove_piece_at(self, square: Square) -> Optional[Piece]:
         """
         Removes the piece from the given square. Returns the
-        :class:`~chess.Piece` or ``None`` if the square was already empty.
+        :class:`~duck_chess.Piece` or ``None`` if the square was already empty.
 
-        :class:`~chess.Board` also clears the move stack.
+        :class:`~duck_chess.Board` also clears the move stack.
         """
         color = bool(self.occupied_co[WHITE] & BB_SQUARES[square])
         piece_type = self._remove_piece_at(square)
@@ -985,9 +985,9 @@ class BaseBoard:
         Sets a piece at the given square.
 
         An existing piece is replaced. Setting *piece* to ``None`` is
-        equivalent to :func:`~chess.Board.remove_piece_at()`.
+        equivalent to :func:`~duck_chess.Board.remove_piece_at()`.
 
-        :class:`~chess.Board` also clears the move stack.
+        :class:`~duck_chess.Board` also clears the move stack.
         """
         if piece is None:
             self._remove_piece_at(square)
@@ -1084,7 +1084,7 @@ class BaseBoard:
         Parses *fen* and sets up the board, where *fen* is the board part of
         a FEN.
 
-        :class:`~chess.Board` also clears the move stack.
+        :class:`~duck_chess.Board` also clears the move stack.
 
         :raises: :exc:`ValueError` if syntactically invalid.
         """
@@ -1092,7 +1092,7 @@ class BaseBoard:
 
     def piece_map(self, *, mask: Bitboard = BB_ALL) -> Dict[Square, Piece]:
         """
-        Gets a dictionary of :class:`pieces <chess.Piece>` by square index.
+        Gets a dictionary of :class:`pieces <duck_chess.Piece>` by square index.
         """
         result = {}
         for square in scan_reversed(self.occupied & mask):
@@ -1106,16 +1106,16 @@ class BaseBoard:
 
     def set_piece_map(self, pieces: Mapping[Square, Piece]) -> None:
         """
-        Sets up the board from a dictionary of :class:`pieces <chess.Piece>`
+        Sets up the board from a dictionary of :class:`pieces <duck_chess.Piece>`
         by square index.
 
-        :class:`~chess.Board` also clears the move stack.
+        :class:`~duck_chess.Board` also clears the move stack.
         """
         self._set_piece_map(pieces)
 
-    def _set_chess960_pos(self, scharnagl: int) -> None:
+    def _set_duck_chess960_pos(self, scharnagl: int) -> None:
         if not 0 <= scharnagl <= 959:
-            raise ValueError(f"chess960 position index not 0 <= {scharnagl!r} <= 959")
+            raise ValueError(f"duck_chess960 position index not 0 <= {scharnagl!r} <= 959")
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
         # a description of the algorithm.
@@ -1174,14 +1174,14 @@ class BaseBoard:
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
         self.promoted = BB_EMPTY
 
-    def set_chess960_pos(self, scharnagl: int) -> None:
+    def set_duck_chess960_pos(self, scharnagl: int) -> None:
         """
         Sets up a Chess960 starting position given its index between 0 and 959.
-        Also see :func:`~chess.BaseBoard.from_chess960_pos()`.
+        Also see :func:`~duck_chess.BaseBoard.from_duck_chess960_pos()`.
         """
-        self._set_chess960_pos(scharnagl)
+        self._set_duck_chess960_pos(scharnagl)
 
-    def chess960_pos(self) -> Optional[int]:
+    def duck_chess960_pos(self) -> Optional[int]:
         """
         Gets the Chess960 starting position index between 0 and 959,
         or ``None``.
@@ -1330,8 +1330,8 @@ class BaseBoard:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.board(board=self, size=400)
+        import duck_chess.svg
+        return duck_chess.svg.board(board=self, size=400)
 
     def __eq__(self, board: object) -> bool:
         if not isinstance(board, BaseBoard):
@@ -1368,13 +1368,13 @@ class BaseBoard:
         Returns a transformed copy of the board (without move stack)
         by applying a bitboard transformation function.
 
-        Available transformations include :func:`chess.flip_vertical()`,
-        :func:`chess.flip_horizontal()`, :func:`chess.flip_diagonal()`,
-        :func:`chess.flip_anti_diagonal()`, :func:`chess.shift_down()`,
-        :func:`chess.shift_up()`, :func:`chess.shift_left()`, and
-        :func:`chess.shift_right()`.
+        Available transformations include :func:`duck_chess.flip_vertical()`,
+        :func:`duck_chess.flip_horizontal()`, :func:`duck_chess.flip_diagonal()`,
+        :func:`duck_chess.flip_anti_diagonal()`, :func:`duck_chess.shift_down()`,
+        :func:`duck_chess.shift_up()`, :func:`duck_chess.shift_left()`, and
+        :func:`duck_chess.shift_right()`.
 
-        Alternatively, :func:`~chess.BaseBoard.apply_transform()` can be used
+        Alternatively, :func:`~duck_chess.BaseBoard.apply_transform()` can be used
         to apply the transformation on the board.
         """
         board = self.copy()
@@ -1392,7 +1392,7 @@ class BaseBoard:
         The board is mirrored vertically and piece colors are swapped, so that
         the position is equivalent modulo color.
 
-        Alternatively, :func:`~chess.BaseBoard.apply_mirror()` can be used
+        Alternatively, :func:`~duck_chess.BaseBoard.apply_mirror()` can be used
         to mirror the board.
         """
         board = self.copy()
@@ -1433,22 +1433,22 @@ class BaseBoard:
     def empty(cls: Type[BaseBoardT]) -> BaseBoardT:
         """
         Creates a new empty board. Also see
-        :func:`~chess.BaseBoard.clear_board()`.
+        :func:`~duck_chess.BaseBoard.clear_board()`.
         """
         return cls(None)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BaseBoardT], scharnagl: int) -> BaseBoardT:
+    def from_duck_chess960_pos(cls: Type[BaseBoardT], scharnagl: int) -> BaseBoardT:
         """
         Creates a new board, initialized with a Chess960 starting position.
 
-        >>> import chess
+        >>> import duck_chess
         >>> import random
         >>>
-        >>> board = chess.Board.from_chess960_pos(random.randint(0, 959))
+        >>> board = duck_chess.Board.from_duck_chess960_pos(random.randint(0, 959))
         """
         board = cls.empty()
-        board.set_chess960_pos(scharnagl)
+        board.set_duck_chess960_pos(scharnagl)
         return board
 
 
@@ -1505,22 +1505,22 @@ class _BoardState(Generic[BoardT]):
 
 class Board(BaseBoard):
     """
-    A :class:`~chess.BaseBoard`, additional information representing
-    a chess position, and a :data:`move stack <chess.Board.move_stack>`.
+    A :class:`~duck_chess.BaseBoard`, additional information representing
+    a duck_chess position, and a :data:`move stack <duck_chess.Board.move_stack>`.
 
-    Provides :data:`move generation <chess.Board.legal_moves>`, validation,
-    :func:`parsing <chess.Board.parse_san()>`, attack generation,
-    :func:`game end detection <chess.Board.is_game_over()>`,
-    and the capability to :func:`make <chess.Board.push()>` and
-    :func:`unmake <chess.Board.pop()>` moves.
+    Provides :data:`move generation <duck_chess.Board.legal_moves>`, validation,
+    :func:`parsing <duck_chess.Board.parse_san()>`, attack generation,
+    :func:`game end detection <duck_chess.Board.is_game_over()>`,
+    and the capability to :func:`make <duck_chess.Board.push()>` and
+    :func:`unmake <duck_chess.Board.pop()>` moves.
 
-    The board is initialized to the standard chess starting position,
+    The board is initialized to the standard duck_chess starting position,
     unless otherwise specified in the optional *fen* argument.
     If *fen* is ``None``, an empty board is created.
 
-    Optionally supports *chess960*. In Chess960, castling moves are encoded
+    Optionally supports *duck_chess960*. In Chess960, castling moves are encoded
     by a king move to the corresponding rook square.
-    Use :func:`chess.Board.from_chess960_pos()` to create a board with one
+    Use :func:`duck_chess.Board.from_duck_chess960_pos()` to create a board with one
     of the Chess960 starting positions.
 
     It's safe to set :data:`~Board.turn`, :data:`~Board.castling_rights`,
@@ -1529,13 +1529,13 @@ class Board(BaseBoard):
 
     .. warning::
         It is possible to set up and work with invalid positions. In this
-        case, :class:`~chess.Board` implements a kind of "pseudo-chess"
-        (useful to gracefully handle errors or to implement chess variants).
-        Use :func:`~chess.Board.is_valid()` to detect invalid positions.
+        case, :class:`~duck_chess.Board` implements a kind of "pseudo-duck_chess"
+        (useful to gracefully handle errors or to implement duck_chess variants).
+        Use :func:`~duck_chess.Board.is_valid()` to detect invalid positions.
     """
 
     aliases: ClassVar[List[str]] = ["Standard", "Chess", "Classical", "Normal", "Illegal", "From Position"]
-    uci_variant: ClassVar[Optional[str]] = "chess"
+    uci_variant: ClassVar[Optional[str]] = "duck_chess"
     xboard_variant: ClassVar[Optional[str]] = "normal"
     starting_fen: ClassVar[str] = STARTING_FEN
 
@@ -1552,7 +1552,7 @@ class Board(BaseBoard):
     captures_compulsory: ClassVar[bool] = False
 
     turn: Color
-    """The side to move (``chess.WHITE`` or ``chess.BLACK``)."""
+    """The side to move (``duck_chess.WHITE`` or ``duck_chess.BLACK``)."""
 
     castling_rights: Bitboard
     """
@@ -1560,29 +1560,29 @@ class Board(BaseBoard):
 
     To test for specific squares:
 
-    >>> import chess
+    >>> import duck_chess
     >>>
-    >>> board = chess.Board()
-    >>> bool(board.castling_rights & chess.BB_H1)  # White can castle with the h1 rook
+    >>> board = duck_chess.Board()
+    >>> bool(board.castling_rights & duck_chess.BB_H1)  # White can castle with the h1 rook
     True
 
     To add a specific square:
 
-    >>> board.castling_rights |= chess.BB_A1
+    >>> board.castling_rights |= duck_chess.BB_A1
 
-    Use :func:`~chess.Board.set_castling_fen()` to set multiple castling
-    rights. Also see :func:`~chess.Board.has_castling_rights()`,
-    :func:`~chess.Board.has_kingside_castling_rights()`,
-    :func:`~chess.Board.has_queenside_castling_rights()`,
-    :func:`~chess.Board.has_chess960_castling_rights()`,
-    :func:`~chess.Board.clean_castling_rights()`.
+    Use :func:`~duck_chess.Board.set_castling_fen()` to set multiple castling
+    rights. Also see :func:`~duck_chess.Board.has_castling_rights()`,
+    :func:`~duck_chess.Board.has_kingside_castling_rights()`,
+    :func:`~duck_chess.Board.has_queenside_castling_rights()`,
+    :func:`~duck_chess.Board.has_duck_chess960_castling_rights()`,
+    :func:`~duck_chess.Board.clean_castling_rights()`.
     """
 
     ep_square: Optional[Square]
     """
     The potential en passant square on the third or sixth rank or ``None``.
 
-    Use :func:`~chess.Board.has_legal_en_passant()` to test if en passant
+    Use :func:`~duck_chess.Board.has_legal_en_passant()` to test if en passant
     capturing would actually be possible on the next move.
     """
 
@@ -1598,7 +1598,7 @@ class Board(BaseBoard):
     promoted: Bitboard
     """A bitmask of pieces that have been promoted."""
 
-    chess960: bool
+    duck_chess960: bool
     """
     Whether the board is in Chess960 mode. In Chess960 castling moves are
     represented as king moves to the corresponding rook square.
@@ -1606,17 +1606,17 @@ class Board(BaseBoard):
 
     move_stack: List[Move]
     """
-    The move stack. Use :func:`Board.push() <chess.Board.push()>`,
-    :func:`Board.pop() <chess.Board.pop()>`,
-    :func:`Board.peek() <chess.Board.peek()>` and
-    :func:`Board.clear_stack() <chess.Board.clear_stack()>` for
+    The move stack. Use :func:`Board.push() <duck_chess.Board.push()>`,
+    :func:`Board.pop() <duck_chess.Board.pop()>`,
+    :func:`Board.peek() <duck_chess.Board.peek()>` and
+    :func:`Board.clear_stack() <duck_chess.Board.clear_stack()>` for
     manipulation.
     """
 
-    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
+    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, duck_chess960: bool = False) -> None:
         BaseBoard.__init__(self, None)
 
-        self.chess960 = chess960
+        self.duck_chess960 = duck_chess960
         self.ep_square = None
         self.move_stack = []
         self._stack: List[_BoardState[BoardT]] = []
@@ -1639,19 +1639,19 @@ class Board(BaseBoard):
         """
         A dynamic list of legal moves.
 
-        >>> import chess
+        >>> import duck_chess
         >>>
-        >>> board = chess.Board()
+        >>> board = duck_chess.Board()
         >>> board.legal_moves.count()
         20
         >>> bool(board.legal_moves)
         True
-        >>> move = chess.Move.from_uci("g1f3")
+        >>> move = duck_chess.Move.from_uci("g1f3")
         >>> move in board.legal_moves
         True
 
-        Wraps :func:`~chess.Board.generate_legal_moves()` and
-        :func:`~chess.Board.is_legal()`.
+        Wraps :func:`~duck_chess.Board.generate_legal_moves()` and
+        :func:`~duck_chess.Board.is_legal()`.
         """
         return LegalMoveGenerator(self)
 
@@ -1664,8 +1664,8 @@ class Board(BaseBoard):
         otherwise valid. Null moves are not pseudo-legal. Castling moves are
         only included if they are completely legal.
 
-        Wraps :func:`~chess.Board.generate_pseudo_legal_moves()` and
-        :func:`~chess.Board.is_pseudo_legal()`.
+        Wraps :func:`~duck_chess.Board.generate_pseudo_legal_moves()` and
+        :func:`~duck_chess.Board.is_pseudo_legal()`.
         """
         return PseudoLegalMoveGenerator(self)
 
@@ -1690,7 +1690,7 @@ class Board(BaseBoard):
         Resets move stack and move counters. The side to move is white. There
         are no rooks or kings, so castling rights are removed.
 
-        In order to be in a valid :func:`~chess.Board.status()`, at least kings
+        In order to be in a valid :func:`~duck_chess.Board.status()`, at least kings
         need to be put on the board.
         """
         self.turn = WHITE
@@ -1713,7 +1713,7 @@ class Board(BaseBoard):
     def root(self: BoardT) -> BoardT:
         """Returns a copy of the root position."""
         if self._stack:
-            board = type(self)(None, chess960=self.chess960)
+            board = type(self)(None, duck_chess960=self.duck_chess960)
             self._stack[0].restore(board)
             return board
         else:
@@ -1730,8 +1730,8 @@ class Board(BaseBoard):
     def ply(self) -> int:
         """
         Returns the number of half-moves since the start of the game, as
-        indicated by :data:`~chess.Board.fullmove_number` and
-        :data:`~chess.Board.turn`.
+        indicated by :data:`~duck_chess.Board.fullmove_number` and
+        :data:`~duck_chess.Board.turn`.
 
         If moves have been pushed from the beginning, this is usually equal to
         ``len(board.move_stack)``. But note that a board can be set up with
@@ -1876,7 +1876,7 @@ class Board(BaseBoard):
         """
         Gets the pieces currently giving check.
 
-        Returns a :class:`set of squares <chess.SquareSet>`.
+        Returns a :class:`set of squares <duck_chess.SquareSet>`.
         """
         pass
 
@@ -1942,7 +1942,7 @@ class Board(BaseBoard):
 
         # Handle castling.
         if piece == KING:
-            move = self._from_chess960(self.chess960, move.from_square, move.to_square)
+            move = self._from_duck_chess960(self.duck_chess960, move.from_square, move.to_square)
             if move in self.generate_castling_moves():
                 return True
 
@@ -1966,10 +1966,10 @@ class Board(BaseBoard):
 
         Note, for example, that stalemate is not considered a variant-specific
         end condition (this method will return ``False``), yet it can have a
-        special **result** in suicide chess (any of
-        :func:`~chess.Board.is_variant_loss()`,
-        :func:`~chess.Board.is_variant_win()`,
-        :func:`~chess.Board.is_variant_draw()` might return ``True``).
+        special **result** in suicide duck_chess (any of
+        :func:`~duck_chess.Board.is_variant_loss()`,
+        :func:`~duck_chess.Board.is_variant_win()`,
+        :func:`~duck_chess.Board.is_variant_draw()` might return ``True``).
         """
         return False
 
@@ -2003,21 +2003,21 @@ class Board(BaseBoard):
     def outcome(self, *, claim_draw: bool = False) -> Optional[Outcome]:
         """
         Checks if the game is over due to
-        :func:`checkmate <chess.Board.is_checkmate()>`,
-        :func:`stalemate <chess.Board.is_stalemate()>`,
-        :func:`insufficient material <chess.Board.is_insufficient_material()>`,
-        the :func:`seventyfive-move rule <chess.Board.is_seventyfive_moves()>`,
-        :func:`fivefold repetition <chess.Board.is_fivefold_repetition()>`,
-        or a :func:`variant end condition <chess.Board.is_variant_end()>`.
-        Returns the :class:`chess.Outcome` if the game has ended, otherwise
+        :func:`checkmate <duck_chess.Board.is_checkmate()>`,
+        :func:`stalemate <duck_chess.Board.is_stalemate()>`,
+        :func:`insufficient material <duck_chess.Board.is_insufficient_material()>`,
+        the :func:`seventyfive-move rule <duck_chess.Board.is_seventyfive_moves()>`,
+        :func:`fivefold repetition <duck_chess.Board.is_fivefold_repetition()>`,
+        or a :func:`variant end condition <duck_chess.Board.is_variant_end()>`.
+        Returns the :class:`duck_chess.Outcome` if the game has ended, otherwise
         ``None``.
 
-        Alternatively, use :func:`~chess.Board.is_game_over()` if you are not
+        Alternatively, use :func:`~duck_chess.Board.is_game_over()` if you are not
         interested in who won the game and why.
 
         The game is not considered to be over by the
-        :func:`fifty-move rule <chess.Board.can_claim_fifty_moves()>` or
-        :func:`threefold repetition <chess.Board.can_claim_threefold_repetition()>`,
+        :func:`fifty-move rule <duck_chess.Board.can_claim_fifty_moves()>` or
+        :func:`threefold repetition <duck_chess.Board.can_claim_threefold_repetition()>`,
         unless *claim_draw* is given. Note that checking the latter can be
         slow.
         """
@@ -2070,7 +2070,7 @@ class Board(BaseBoard):
     def is_insufficient_material(self) -> bool:
         """
         Checks if neither side has sufficient winning material
-        (:func:`~chess.Board.has_insufficient_material()`).
+        (:func:`~duck_chess.Board.has_insufficient_material()`).
         """
         return all(self.has_insufficient_material(color) for color in COLORS)
 
@@ -2151,7 +2151,7 @@ class Board(BaseBoard):
         """
         Checks if the player to move can claim a draw by the fifty-move rule.
 
-        In addition to :func:`~chess.Board.is_fifty_moves()`, the fifty-move
+        In addition to :func:`~duck_chess.Board.is_fifty_moves()`, the fifty-move
         rule can also be claimed if there is a legal move that achieves this
         condition.
         """
@@ -2220,7 +2220,7 @@ class Board(BaseBoard):
         Checks if the current position has repeated 3 (or a given number of)
         times.
 
-        Unlike :func:`~chess.Board.can_claim_threefold_repetition()`,
+        Unlike :func:`~duck_chess.Board.can_claim_threefold_repetition()`,
         this does not consider a repetition that can be played on the next
         move.
 
@@ -2277,11 +2277,11 @@ class Board(BaseBoard):
         Updates the position with the given *move* and puts it onto the
         move stack.
 
-        >>> import chess
+        >>> import duck_chess
         >>>
-        >>> board = chess.Board()
+        >>> board = duck_chess.Board()
         >>>
-        >>> Nf3 = chess.Move.from_uci("g1f3")
+        >>> Nf3 = duck_chess.Move.from_uci("g1f3")
         >>> board.push(Nf3)  # Make the move
 
         >>> board.pop()  # Unmake the last move
@@ -2297,10 +2297,10 @@ class Board(BaseBoard):
         """
         # Push move and remember board state.
         
-        move = self._to_chess960(move)
+        move = self._to_duck_chess960(move)
         board_state = self._board_state()
         self.castling_rights = self.clean_castling_rights()  # Before pushing stack
-        self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
+        self.move_stack.append(self._from_duck_chess960(self.duck_chess960, move.from_square, move.to_square, move.promotion, move.drop))
         self._stack.append(board_state)
 
         # Reset en passant square.
@@ -2419,7 +2419,7 @@ class Board(BaseBoard):
         an optional promotion piece type.
 
         For pawn moves to the backrank, the promotion piece type defaults to
-        :data:`chess.QUEEN`, unless otherwise specified.
+        :data:`duck_chess.QUEEN`, unless otherwise specified.
 
         Castling moves are normalized to king moves by two steps, except in
         Chess960.
@@ -2429,7 +2429,7 @@ class Board(BaseBoard):
         if promotion is None and self.pawns & BB_SQUARES[from_square] and BB_SQUARES[to_square] & BB_BACKRANKS:
             promotion = QUEEN
 
-        move = self._from_chess960(self.chess960, from_square, to_square, promotion)
+        move = self._from_duck_chess960(self.duck_chess960, from_square, to_square, promotion)
         if not self.is_legal(move):
             raise IllegalMoveError(f"no matching legal move for {move.uci()} ({SQUARE_NAMES[from_square]} -> {SQUARE_NAMES[to_square]}) in {self.fen()}")
 
@@ -2493,25 +2493,25 @@ class Board(BaseBoard):
 
         A FEN string (e.g.,
         ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1``) consists
-        of the board part :func:`~chess.Board.board_fen()`, the
-        :data:`~chess.Board.turn`, the castling part
-        (:data:`~chess.Board.castling_rights`),
-        the en passant square (:data:`~chess.Board.ep_square`),
-        the :data:`~chess.Board.halfmove_clock`
-        and the :data:`~chess.Board.fullmove_number`.
+        of the board part :func:`~duck_chess.Board.board_fen()`, the
+        :data:`~duck_chess.Board.turn`, the castling part
+        (:data:`~duck_chess.Board.castling_rights`),
+        the en passant square (:data:`~duck_chess.Board.ep_square`),
+        the :data:`~duck_chess.Board.halfmove_clock`
+        and the :data:`~duck_chess.Board.fullmove_number`.
 
-        :param shredder: Use :func:`~chess.Board.castling_shredder_fen()`
+        :param shredder: Use :func:`~duck_chess.Board.castling_shredder_fen()`
             and encode castling rights by the file of the rook
             (like ``HAha``) instead of the default
-            :func:`~chess.Board.castling_xfen()` (like ``KQkq``).
+            :func:`~duck_chess.Board.castling_xfen()` (like ``KQkq``).
         :param en_passant: By default, only fully legal en passant squares
-            are included (:func:`~chess.Board.has_legal_en_passant()`).
+            are included (:func:`~duck_chess.Board.has_legal_en_passant()`).
             Pass ``fen`` to strictly follow the FEN specification
             (always include the en passant square after a two-step pawn move)
             or ``xfen`` to follow the X-FEN specification
-            (:func:`~chess.Board.has_pseudo_legal_en_passant()`).
+            (:func:`~duck_chess.Board.has_pseudo_legal_en_passant()`).
         :param promoted: Mark promoted pieces like ``Q~``. By default, this is
-            only enabled in chess variants where this is relevant.
+            only enabled in duck_chess variants where this is relevant.
         """
         return " ".join([
             self.epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
@@ -2531,7 +2531,7 @@ class Board(BaseBoard):
         Parses a FEN and sets the position from it.
 
         :raises: :exc:`ValueError` if syntactically invalid. Use
-            :func:`~chess.Board.is_valid()` to detect invalid positions.
+            :func:`~duck_chess.Board.is_valid()` to detect invalid positions.
         """
         parts = fen.split()
 
@@ -2673,9 +2673,9 @@ class Board(BaseBoard):
         super().set_piece_map(pieces)
         self.clear_stack()
 
-    def set_chess960_pos(self, scharnagl: int) -> None:
-        super().set_chess960_pos(scharnagl)
-        self.chess960 = True
+    def set_duck_chess960_pos(self, scharnagl: int) -> None:
+        super().set_duck_chess960_pos(scharnagl)
+        self.duck_chess960 = True
         self.turn = WHITE
         self.castling_rights = self.rooks
         self.ep_square = None
@@ -2684,7 +2684,7 @@ class Board(BaseBoard):
 
         self.clear_stack()
 
-    def chess960_pos(self, *, ignore_turn: bool = False, ignore_castling: bool = False, ignore_counters: bool = True) -> Optional[int]:
+    def duck_chess960_pos(self, *, ignore_turn: bool = False, ignore_castling: bool = False, ignore_counters: bool = True) -> Optional[int]:
         """
         Gets the Chess960 starting position index between 0 and 956,
         or ``None`` if the current position is not a Chess960 starting
@@ -2709,7 +2709,7 @@ class Board(BaseBoard):
             if self.fullmove_number != 1 or self.halfmove_clock != 0:
                 return None
 
-        return super().chess960_pos()
+        return super().duck_chess960_pos()
 
     def _epd_operations(self, operations: Mapping[str, Union[None, str, int, float, Move, Iterable[Move]]]) -> str:
         epd = []
@@ -2759,7 +2759,7 @@ class Board(BaseBoard):
         """
         Gets an EPD representation of the current position.
 
-        See :func:`~chess.Board.fen()` for FEN formatting options (*shredder*,
+        See :func:`~duck_chess.Board.fen()` for FEN formatting options (*shredder*,
         *ep_square* and *promoted*).
 
         EPD operations can be given as keyword arguments. Supported operands
@@ -2773,9 +2773,9 @@ class Board(BaseBoard):
 
         *hmvc* and *fmvn* are not included by default. You can use:
 
-        >>> import chess
+        >>> import duck_chess
         >>>
-        >>> board = chess.Board()
+        >>> board = duck_chess.Board()
         >>> board.epd(hmvc=board.halfmove_clock, fmvn=board.fullmove_number)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvn 1;'
         """
@@ -3180,18 +3180,18 @@ class Board(BaseBoard):
         self.push(move)
         return move
 
-    def uci(self, move: Move, *, chess960: Optional[bool] = None) -> str:
+    def uci(self, move: Move, *, duck_chess960: Optional[bool] = None) -> str:
         """
         Gets the UCI notation of the move.
 
-        *chess960* defaults to the mode of the board. Pass ``True`` to force
+        *duck_chess960* defaults to the mode of the board. Pass ``True`` to force
         Chess960 mode.
         """
-        if chess960 is None:
-            chess960 = self.chess960
+        if duck_chess960 is None:
+            duck_chess960 = self.duck_chess960
 
-        move = self._to_chess960(move)
-        move = self._from_chess960(chess960, move.from_square, move.to_square, move.promotion, move.drop)
+        move = self._to_duck_chess960(move)
+        move = self._from_duck_chess960(duck_chess960, move.from_square, move.to_square, move.promotion, move.drop)
         return move.uci()
 
     def parse_uci(self, uci: str) -> Move:
@@ -3213,8 +3213,8 @@ class Board(BaseBoard):
         if not move:
             return move
 
-        move = self._to_chess960(move)
-        move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
+        move = self._to_duck_chess960(move)
+        move = self._from_duck_chess960(self.duck_chess960, move.from_square, move.to_square, move.promotion, move.drop)
 
         if not self.is_legal(move):
             raise IllegalMoveError(f"illegal uci: {uci!r} in {self.fen()}")
@@ -3237,11 +3237,11 @@ class Board(BaseBoard):
         self.push(move)
         return move
 
-    def xboard(self, move: Move, chess960: Optional[bool] = None) -> str:
-        if chess960 is None:
-            chess960 = self.chess960
+    def xboard(self, move: Move, duck_chess960: Optional[bool] = None) -> str:
+        if duck_chess960 is None:
+            duck_chess960 = self.duck_chess960
 
-        if not chess960 or not self.is_castling(move):
+        if not duck_chess960 or not self.is_castling(move):
             return move.xboard()
         elif self.is_kingside_castling(move):
             return "O-O"
@@ -3281,7 +3281,7 @@ class Board(BaseBoard):
         """
         Checks if the given pseudo-legal move is irreversible.
 
-        In standard chess, pawn moves, captures, moves that destroy castling
+        In standard duck_chess, pawn moves, captures, moves that destroy castling
         rights and moves that cede en passant are irreversible.
 
         This method has false-negatives with forced lines. For example, a check
@@ -3312,7 +3312,7 @@ class Board(BaseBoard):
     def clean_castling_rights(self) -> Bitboard:
         """
         Returns valid castling rights filtered from
-        :data:`~chess.Board.castling_rights`.
+        :data:`~duck_chess.Board.castling_rights`.
         """
         if self._stack:
             # No new castling rights are assigned in a game, so we can assume
@@ -3323,7 +3323,7 @@ class Board(BaseBoard):
         white_castling = castling & BB_RANK_1 & self.occupied_co[WHITE]
         black_castling = castling & BB_RANK_8 & self.occupied_co[BLACK]
 
-        if not self.chess960:
+        if not self.duck_chess960:
             # The rooks must be on a1, h1, a8 or h8.
             white_castling &= (BB_A1 | BB_H1)
             black_castling &= (BB_A8 | BB_H8)
@@ -3412,22 +3412,22 @@ class Board(BaseBoard):
 
         return False
 
-    def has_chess960_castling_rights(self) -> bool:
+    def has_duck_chess960_castling_rights(self) -> bool:
         """
         Checks if there are castling rights that are only possible in Chess960.
         """
         # Get valid Chess960 castling rights.
-        chess960 = self.chess960
-        self.chess960 = True
+        duck_chess960 = self.duck_chess960
+        self.duck_chess960 = True
         castling_rights = self.clean_castling_rights()
-        self.chess960 = chess960
+        self.duck_chess960 = duck_chess960
 
-        # Standard chess castling rights can only be on the standard
+        # Standard duck_chess castling rights can only be on the standard
         # starting rook squares.
         if castling_rights & ~BB_CORNERS:
             return True
 
-        # If there are any castling rights in standard chess, the king must be
+        # If there are any castling rights in standard duck_chess, the king must be
         # on e1 or e8.
         if castling_rights & BB_RANK_1 and not self.occupied_co[WHITE] & self.kings & BB_E1:
             return True
@@ -3440,28 +3440,28 @@ class Board(BaseBoard):
         """
         Gets a bitmask of possible problems with the position.
 
-        :data:`~chess.STATUS_VALID` if all basic validity requirements are met.
+        :data:`~duck_chess.STATUS_VALID` if all basic validity requirements are met.
         This does not imply that the position is actually reachable with a
         series of legal moves from the starting position.
 
         Otherwise, bitwise combinations of:
-        :data:`~chess.STATUS_NO_WHITE_KING`,
-        :data:`~chess.STATUS_NO_BLACK_KING`,
-        :data:`~chess.STATUS_TOO_MANY_KINGS`,
-        :data:`~chess.STATUS_TOO_MANY_WHITE_PAWNS`,
-        :data:`~chess.STATUS_TOO_MANY_BLACK_PAWNS`,
-        :data:`~chess.STATUS_PAWNS_ON_BACKRANK`,
-        :data:`~chess.STATUS_TOO_MANY_WHITE_PIECES`,
-        :data:`~chess.STATUS_TOO_MANY_BLACK_PIECES`,
-        :data:`~chess.STATUS_BAD_CASTLING_RIGHTS`,
-        :data:`~chess.STATUS_INVALID_EP_SQUARE`,
-        :data:`~chess.STATUS_OPPOSITE_CHECK`,
-        :data:`~chess.STATUS_EMPTY`,
-        :data:`~chess.STATUS_RACE_CHECK`,
-        :data:`~chess.STATUS_RACE_OVER`,
-        :data:`~chess.STATUS_RACE_MATERIAL`,
-        :data:`~chess.STATUS_TOO_MANY_CHECKERS`,
-        :data:`~chess.STATUS_IMPOSSIBLE_CHECK`.
+        :data:`~duck_chess.STATUS_NO_WHITE_KING`,
+        :data:`~duck_chess.STATUS_NO_BLACK_KING`,
+        :data:`~duck_chess.STATUS_TOO_MANY_KINGS`,
+        :data:`~duck_chess.STATUS_TOO_MANY_WHITE_PAWNS`,
+        :data:`~duck_chess.STATUS_TOO_MANY_BLACK_PAWNS`,
+        :data:`~duck_chess.STATUS_PAWNS_ON_BACKRANK`,
+        :data:`~duck_chess.STATUS_TOO_MANY_WHITE_PIECES`,
+        :data:`~duck_chess.STATUS_TOO_MANY_BLACK_PIECES`,
+        :data:`~duck_chess.STATUS_BAD_CASTLING_RIGHTS`,
+        :data:`~duck_chess.STATUS_INVALID_EP_SQUARE`,
+        :data:`~duck_chess.STATUS_OPPOSITE_CHECK`,
+        :data:`~duck_chess.STATUS_EMPTY`,
+        :data:`~duck_chess.STATUS_RACE_CHECK`,
+        :data:`~duck_chess.STATUS_RACE_OVER`,
+        :data:`~duck_chess.STATUS_RACE_MATERIAL`,
+        :data:`~duck_chess.STATUS_TOO_MANY_CHECKERS`,
+        :data:`~duck_chess.STATUS_IMPOSSIBLE_CHECK`.
         """
         errors = STATUS_VALID
 
@@ -3563,7 +3563,7 @@ class Board(BaseBoard):
         """
         Checks some basic validity requirements.
 
-        See :func:`~chess.Board.status()` for details.
+        See :func:`~duck_chess.Board.status()` for details.
         """
         return self.status() == STATUS_VALID
 
@@ -3715,10 +3715,10 @@ class Board(BaseBoard):
             if not ((self.occupied ^ king ^ rook) & (king_path | rook_path | king_to | rook_to) or
                     self._attacked_for_king(king_path | king, self.occupied ^ king) or
                     self._attacked_for_king(king_to, self.occupied ^ king ^ rook ^ rook_to)):
-                yield self._from_chess960(self.chess960, msb(king), candidate)
+                yield self._from_duck_chess960(self.duck_chess960, msb(king), candidate)
 
-    def _from_chess960(self, chess960: bool, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None, drop: Optional[PieceType] = None) -> Move:
-        if not chess960 and promotion is None and drop is None:
+    def _from_duck_chess960(self, duck_chess960: bool, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None, drop: Optional[PieceType] = None) -> Move:
+        if not duck_chess960 and promotion is None and drop is None:
             if from_square == E1 and self.kings & BB_E1:
                 if to_square == H1:
                     return Move(E1, G1)
@@ -3732,7 +3732,7 @@ class Board(BaseBoard):
 
         return Move(from_square, to_square, promotion, drop)
 
-    def _to_chess960(self, move: Move) -> Move:
+    def _to_duck_chess960(self, move: Move) -> Move:
         if move.from_square == E1 and self.kings & BB_E1:
             if move.to_square == G1 and not self.rooks & BB_G1:
                 return Move(E1, H1)
@@ -3754,14 +3754,14 @@ class Board(BaseBoard):
                 self.ep_square if self.has_legal_en_passant() else None)
 
     def __repr__(self) -> str:
-        if not self.chess960:
+        if not self.duck_chess960:
             return f"{type(self).__name__}({self.fen()!r})"
         else:
-            return f"{type(self).__name__}({self.fen()!r}, chess960=True)"
+            return f"{type(self).__name__}({self.fen()!r}, duck_chess960=True)"
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.board(
+        import duck_chess.svg
+        return duck_chess.svg.board(
             board=self,
             size=390,
             lastmove=self.peek() if self.move_stack else None,
@@ -3800,7 +3800,7 @@ class Board(BaseBoard):
         the position is equivalent modulo color. Also swap the "en passant"
         square, castling rights and turn.
 
-        Alternatively, :func:`~chess.Board.apply_mirror()` can be used
+        Alternatively, :func:`~duck_chess.Board.apply_mirror()` can be used
         to mirror the board.
         """
         board = self.copy()
@@ -3816,7 +3816,7 @@ class Board(BaseBoard):
         """
         board = super().copy()
 
-        board.chess960 = self.chess960
+        board.duck_chess960 = self.duck_chess960
 
         board.ep_square = self.ep_square
         board.castling_rights = self.castling_rights
@@ -3834,25 +3834,25 @@ class Board(BaseBoard):
         return board
 
     @classmethod
-    def empty(cls: Type[BoardT], *, chess960: bool = False) -> BoardT:
-        """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
-        return cls(None, chess960=chess960)
+    def empty(cls: Type[BoardT], *, duck_chess960: bool = False) -> BoardT:
+        """Creates a new empty board. Also see :func:`~duck_chess.Board.clear()`."""
+        return cls(None, duck_chess960=duck_chess960)
 
     @classmethod
-    def from_epd(cls: Type[BoardT], epd: str, *, chess960: bool = False) -> Tuple[BoardT, Dict[str, Union[None, str, int, float, Move, List[Move]]]]:
+    def from_epd(cls: Type[BoardT], epd: str, *, duck_chess960: bool = False) -> Tuple[BoardT, Dict[str, Union[None, str, int, float, Move, List[Move]]]]:
         """
         Creates a new board from an EPD string. See
-        :func:`~chess.Board.set_epd()`.
+        :func:`~duck_chess.Board.set_epd()`.
 
         Returns the board and the dictionary of parsed operations as a tuple.
         """
-        board = cls.empty(chess960=chess960)
+        board = cls.empty(duck_chess960=duck_chess960)
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BoardT], scharnagl: int) -> BoardT:
-        board = cls.empty(chess960=True)
-        board.set_chess960_pos(scharnagl)
+    def from_duck_chess960_pos(cls: Type[BoardT], scharnagl: int) -> BoardT:
+        board = cls.empty(duck_chess960=True)
+        board.set_duck_chess960_pos(scharnagl)
         return board
 
 
@@ -3938,13 +3938,13 @@ class SquareSet:
     """
     A set of squares.
 
-    >>> import chess
+    >>> import duck_chess
     >>>
-    >>> squares = chess.SquareSet([chess.A8, chess.A1])
+    >>> squares = duck_chess.SquareSet([duck_chess.A8, duck_chess.A1])
     >>> squares
     SquareSet(0x0100_0000_0000_0001)
 
-    >>> squares = chess.SquareSet(chess.BB_A8 | chess.BB_RANK_1)
+    >>> squares = duck_chess.SquareSet(duck_chess.BB_A8 | duck_chess.BB_RANK_1)
     >>> squares
     SquareSet(0x0100_0000_0000_00ff)
 
@@ -3964,19 +3964,19 @@ class SquareSet:
     >>> bool(squares)
     True
 
-    >>> chess.B1 in squares
+    >>> duck_chess.B1 in squares
     True
 
     >>> for square in squares:
-    ...     # 0 -- chess.A1
-    ...     # 1 -- chess.B1
-    ...     # 2 -- chess.C1
-    ...     # 3 -- chess.D1
-    ...     # 4 -- chess.E1
-    ...     # 5 -- chess.F1
-    ...     # 6 -- chess.G1
-    ...     # 7 -- chess.H1
-    ...     # 56 -- chess.A8
+    ...     # 0 -- duck_chess.A1
+    ...     # 1 -- duck_chess.B1
+    ...     # 2 -- duck_chess.C1
+    ...     # 3 -- duck_chess.D1
+    ...     # 4 -- duck_chess.E1
+    ...     # 5 -- duck_chess.F1
+    ...     # 6 -- duck_chess.G1
+    ...     # 7 -- duck_chess.H1
+    ...     # 56 -- duck_chess.A8
     ...     print(square)
     ...
     0
@@ -4000,16 +4000,16 @@ class SquareSet:
     72057594037928191
 
     Also supports common set operations like
-    :func:`~chess.SquareSet.issubset()`, :func:`~chess.SquareSet.issuperset()`,
-    :func:`~chess.SquareSet.union()`, :func:`~chess.SquareSet.intersection()`,
-    :func:`~chess.SquareSet.difference()`,
-    :func:`~chess.SquareSet.symmetric_difference()` and
-    :func:`~chess.SquareSet.copy()` as well as
-    :func:`~chess.SquareSet.update()`,
-    :func:`~chess.SquareSet.intersection_update()`,
-    :func:`~chess.SquareSet.difference_update()`,
-    :func:`~chess.SquareSet.symmetric_difference_update()` and
-    :func:`~chess.SquareSet.clear()`.
+    :func:`~duck_chess.SquareSet.issubset()`, :func:`~duck_chess.SquareSet.issuperset()`,
+    :func:`~duck_chess.SquareSet.union()`, :func:`~duck_chess.SquareSet.intersection()`,
+    :func:`~duck_chess.SquareSet.difference()`,
+    :func:`~duck_chess.SquareSet.symmetric_difference()` and
+    :func:`~duck_chess.SquareSet.copy()` as well as
+    :func:`~duck_chess.SquareSet.update()`,
+    :func:`~duck_chess.SquareSet.intersection_update()`,
+    :func:`~duck_chess.SquareSet.difference_update()`,
+    :func:`~duck_chess.SquareSet.symmetric_difference_update()` and
+    :func:`~duck_chess.SquareSet.clear()`.
     """
 
     def __init__(self, squares: IntoSquareSet = BB_EMPTY) -> None:
@@ -4228,8 +4228,8 @@ class SquareSet:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.board(squares=self, size=390)
+        import duck_chess.svg
+        return duck_chess.svg.board(squares=self, size=390)
 
     @classmethod
     def ray(cls, a: Square, b: Square) -> SquareSet:
@@ -4237,9 +4237,9 @@ class SquareSet:
         All squares on the rank, file or diagonal with the two squares, if they
         are aligned.
 
-        >>> import chess
+        >>> import duck_chess
         >>>
-        >>> print(chess.SquareSet.ray(chess.E2, chess.B5))
+        >>> print(duck_chess.SquareSet.ray(duck_chess.E2, duck_chess.B5))
         . . . . . . . .
         . . . . . . . .
         1 . . . . . . .
@@ -4257,9 +4257,9 @@ class SquareSet:
         All squares on the rank, file or diagonal between the two squares
         (bounds not included), if they are aligned.
 
-        >>> import chess
+        >>> import duck_chess
         >>>
-        >>> print(chess.SquareSet.between(chess.E2, chess.B5))
+        >>> print(duck_chess.SquareSet.between(duck_chess.E2, duck_chess.B5))
         . . . . . . . .
         . . . . . . . .
         . . . . . . . .
@@ -4274,11 +4274,11 @@ class SquareSet:
     @classmethod
     def from_square(cls, square: Square) -> SquareSet:
         """
-        Creates a :class:`~chess.SquareSet` from a single square.
+        Creates a :class:`~duck_chess.SquareSet` from a single square.
 
-        >>> import chess
+        >>> import duck_chess
         >>>
-        >>> chess.SquareSet.from_square(chess.A1) == chess.BB_A1
+        >>> duck_chess.SquareSet.from_square(duck_chess.A1) == duck_chess.BB_A1
         True
         """
         return cls(BB_SQUARES[square])

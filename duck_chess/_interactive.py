@@ -1,7 +1,7 @@
 # TODO: Fix typing in this file.
 # mypy: ignore-errors
 
-import chess.svg
+import duck_chess.svg
 
 
 class WidgetError(Exception):
@@ -178,7 +178,7 @@ class InteractiveViewer:
 
     @property
     def svg(self) -> HTML:
-        svg = chess.svg.board(
+        svg = duck_chess.svg.board(
             board=self.__board,
             size=390,
             lastmove=self.__board.peek() if self.__board.move_stack else None,

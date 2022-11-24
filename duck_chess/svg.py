@@ -1,4 +1,4 @@
-# This file is part of the python-chess library.
+# This file is part of the python-duck_chess library.
 # Copyright (C) 2016-2021 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,10 +23,10 @@ from __future__ import annotations
 import math
 import xml.etree.ElementTree as ET
 
-import chess
+import duck_chess
 
 from typing import Dict, Iterable, Optional, Tuple, Union
-from chess import Color, IntoSquareSet, Square
+from duck_chess import Color, IntoSquareSet, Square
 
 
 SQUARE_SIZE = 45
@@ -120,15 +120,15 @@ class Arrow:
             color = "G"
 
         if self.tail == self.head:
-            return f"{color}{chess.SQUARE_NAMES[self.tail]}"
+            return f"{color}{duck_chess.SQUARE_NAMES[self.tail]}"
         else:
-            return f"{color}{chess.SQUARE_NAMES[self.tail]}{chess.SQUARE_NAMES[self.head]}"
+            return f"{color}{duck_chess.SQUARE_NAMES[self.tail]}{duck_chess.SQUARE_NAMES[self.head]}"
 
     def __str__(self) -> str:
         return self.pgn()
 
     def __repr__(self) -> str:
-        return f"Arrow({chess.SQUARE_NAMES[self.tail].upper()}, {chess.SQUARE_NAMES[self.head].upper()}, color={self.color!r})"
+        return f"Arrow({duck_chess.SQUARE_NAMES[self.tail].upper()}, {duck_chess.SQUARE_NAMES[self.head].upper()}, color={self.color!r})"
 
     @classmethod
     def from_pgn(cls, pgn: str) -> Arrow:
@@ -155,8 +155,8 @@ class Arrow:
         else:
             color = "green"
 
-        tail = chess.parse_square(pgn[:2])
-        head = chess.parse_square(pgn[2:]) if len(pgn) > 2 else tail
+        tail = duck_chess.parse_square(pgn[:2])
+        head = duck_chess.parse_square(pgn[2:]) if len(pgn) > 2 else tail
         return cls(tail, head, color=color)
 
 
@@ -219,14 +219,14 @@ def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool,
     return t
 
 
-def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
+def piece(piece: duck_chess.Piece, size: Optional[int] = None) -> str:
     """
-    Renders the given :class:`chess.Piece` as an SVG image.
+    Renders the given :class:`duck_chess.Piece` as an SVG image.
 
-    >>> import chess
-    >>> import chess.svg
+    >>> import duck_chess
+    >>> import duck_chess.svg
     >>>
-    >>> chess.svg.piece(chess.Piece.from_symbol("R"))  # doctest: +SKIP
+    >>> duck_chess.svg.piece(duck_chess.Piece.from_symbol("R"))  # doctest: +SKIP
 
     .. image:: ../docs/wR.svg
         :alt: R
@@ -236,9 +236,9 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
-def board(board: Optional[chess.BaseBoard] = None, *,
-          orientation: Color = chess.WHITE,
-          lastmove: Optional[chess.Move] = None,
+def board(board: Optional[duck_chess.BaseBoard] = None, *,
+          orientation: Color = duck_chess.WHITE,
+          lastmove: Optional[duck_chess.Move] = None,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
           fill: Dict[Square, str] = {},
@@ -251,18 +251,18 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
-    :param board: A :class:`chess.BaseBoard` for a chessboard with pieces, or
-        ``None`` (the default) for a chessboard without pieces.
-    :param orientation: The point of view, defaulting to ``chess.WHITE``.
-    :param lastmove: A :class:`chess.Move` to be highlighted.
+    :param board: A :class:`duck_chess.BaseBoard` for a duck_chessboard with pieces, or
+        ``None`` (the default) for a duck_chessboard without pieces.
+    :param orientation: The point of view, defaulting to ``duck_chess.WHITE``.
+    :param lastmove: A :class:`duck_chess.Move` to be highlighted.
     :param check: A square to be marked indicating a check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects, like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
-        ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
-        square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
+    :param arrows: A list of :class:`~duck_chess.svg.Arrow` objects, like
+        ``[duck_chess.svg.Arrow(duck_chess.E2, duck_chess.E4)]``, or a list of tuples, like
+        ``[(duck_chess.E2, duck_chess.E4)]``. An arrow from a square pointing to the same
+        square is drawn as a circle, like ``[(duck_chess.E2, duck_chess.E2)]``.
     :param fill: A dictionary mapping squares to a colors that they should be
         filled with.
-    :param squares: A :class:`chess.SquareSet` with selected squares to mark
+    :param squares: A :class:`duck_chess.SquareSet` with selected squares to mark
         with an X.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board), or ``None`` (the default) for no size limit.
@@ -275,16 +275,16 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     :param flipped: Pass ``True`` to flip the board.
     :param style: A CSS stylesheet to include in the SVG image.
 
-    >>> import chess
-    >>> import chess.svg
+    >>> import duck_chess
+    >>> import duck_chess.svg
     >>>
-    >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
+    >>> board = duck_chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
     >>>
-    >>> chess.svg.board(
+    >>> duck_chess.svg.board(
     ...     board,
-    ...     fill=dict.fromkeys(board.attacks(chess.E4), "#cc0000cc"),
-    ...     arrows=[chess.svg.Arrow(chess.E4, chess.F6, color="#0000cccc")],
-    ...     squares=chess.SquareSet(chess.BB_DARK_SQUARES & chess.BB_FILE_B),
+    ...     fill=dict.fromkeys(board.attacks(duck_chess.E4), "#cc0000cc"),
+    ...     arrows=[duck_chess.svg.Arrow(duck_chess.E4, duck_chess.F6, color="#0000cccc")],
+    ...     squares=duck_chess.SquareSet(duck_chess.BB_DARK_SQUARES & duck_chess.BB_FILE_B),
     ...     size=350,
     ... )  # doctest: +SKIP
 
@@ -308,12 +308,12 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     defs = ET.SubElement(svg, "defs")
     if board:
-        for piece_color in chess.COLORS:
-            for piece_type in chess.PIECE_TYPES:
+        for piece_color in duck_chess.COLORS:
+            for piece_type in duck_chess.PIECE_TYPES:
                 if board.pieces_mask(piece_type, piece_color):
-                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
+                    defs.append(ET.fromstring(PIECES[duck_chess.Piece(piece_type, piece_color).symbol()]))
 
-    squares = chess.SquareSet(squares) if squares else chess.SquareSet()
+    squares = duck_chess.SquareSet(squares) if squares else duck_chess.SquareSet()
     if squares:
         defs.append(ET.fromstring(XX))
 
@@ -332,29 +332,29 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             "opacity": margin_opacity if margin_opacity < 1.0 else None,
         }))
         coord_color, coord_opacity = _select_color(colors, "coord")
-        for file_index, file_name in enumerate(chess.FILE_NAMES):
+        for file_index, file_name in enumerate(duck_chess.FILE_NAMES):
             x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
             svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
             svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
-        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
+        for rank_index, rank_name in enumerate(duck_chess.RANK_NAMES):
             y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
             svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
             svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
 
     # Render board.
-    for square, bb in enumerate(chess.BB_SQUARES):
-        file_index = chess.square_file(square)
-        rank_index = chess.square_rank(square)
+    for square, bb in enumerate(duck_chess.BB_SQUARES):
+        file_index = duck_chess.square_file(square)
+        rank_index = duck_chess.square_rank(square)
 
         x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
         y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
 
-        cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
+        cls = ["square", "light" if duck_chess.BB_LIGHT_SQUARES & bb else "dark"]
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
         square_color, square_opacity = _select_color(colors, " ".join(cls))
 
-        cls.append(chess.SQUARE_NAMES[square])
+        cls.append(duck_chess.SQUARE_NAMES[square])
 
         ET.SubElement(svg, "rect", _attrs({
             "x": x,
@@ -384,8 +384,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     # Render check mark.
     if check is not None:
-        file_index = chess.square_file(check)
-        rank_index = chess.square_rank(check)
+        file_index = duck_chess.square_file(check)
+        rank_index = duck_chess.square_rank(check)
 
         x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
         y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
@@ -400,9 +400,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         }))
 
     # Render pieces and selected squares.
-    for square, bb in enumerate(chess.BB_SQUARES):
-        file_index = chess.square_file(square)
-        rank_index = chess.square_rank(square)
+    for square, bb in enumerate(duck_chess.BB_SQUARES):
+        file_index = duck_chess.square_file(square)
+        rank_index = duck_chess.square_rank(square)
 
         x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
         y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
@@ -410,7 +410,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         if board is not None:
             piece = board.piece_at(square)
             if piece:
-                href = f"#{chess.COLOR_NAMES[piece.color]}-{chess.DUCK_NAMES[piece.piece_type]}"
+                href = f"#{duck_chess.COLOR_NAMES[piece.color]}-{duck_chess.DUCK_NAMES[piece.piece_type]}"
                 # if "duck" in href:
                 #     href =f"#white-king"
                 ET.SubElement(svg, "use", {
@@ -441,10 +441,10 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         except KeyError:
             opacity = 1.0
 
-        tail_file = chess.square_file(tail)
-        tail_rank = chess.square_rank(tail)
-        head_file = chess.square_file(head)
-        head_rank = chess.square_rank(head)
+        tail_file = duck_chess.square_file(tail)
+        tail_rank = duck_chess.square_rank(tail)
+        head_file = duck_chess.square_file(head)
+        head_rank = duck_chess.square_rank(head)
 
         xtail = margin + (tail_file + 0.5 if orientation else 7.5 - tail_file) * SQUARE_SIZE
         ytail = margin + (7.5 - tail_rank if orientation else tail_rank + 0.5) * SQUARE_SIZE

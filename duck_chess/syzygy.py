@@ -1,4 +1,4 @@
-# This file is part of the python-chess library.
+# This file is part of the python-duck_chess library.
 # Copyright (C) 2012-2021 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ import struct
 import threading
 import typing
 
-import chess
+import duck_chess
 
 from types import TracebackType
 from typing import Deque, Dict, Iterable, Iterator, List, Optional, Tuple, Type, TypeVar, Union
@@ -51,10 +51,10 @@ TRIANGLE = [
 
 INVTRIANGLE = [1, 2, 3, 10, 11, 19, 0, 9, 18, 27]
 
-def offdiag(square: chess.Square) -> int:
-    return chess.square_rank(square) - chess.square_file(square)
+def offdiag(square: duck_chess.Square) -> int:
+    return duck_chess.square_rank(square) - duck_chess.square_file(square)
 
-def flipdiag(square: chess.Square) -> chess.Square:
+def flipdiag(square: duck_chess.Square) -> duck_chess.Square:
     return ((square >> 3) | (square << 3)) & 63
 
 LOWER = [
@@ -294,10 +294,10 @@ PP_IDX = [[
      -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
 ]]
 
-def test45(sq: chess.Square) -> bool:
-    return bool(chess.BB_SQUARES[sq] & (chess.BB_A5 | chess.BB_A6 | chess.BB_A7 |
-                                        chess.BB_B5 | chess.BB_B6 |
-                                        chess.BB_C5))
+def test45(sq: duck_chess.Square) -> bool:
+    return bool(duck_chess.BB_SQUARES[sq] & (duck_chess.BB_A5 | duck_chess.BB_A6 | duck_chess.BB_A7 |
+                                        duck_chess.BB_B5 | duck_chess.BB_B6 |
+                                        duck_chess.BB_C5))
 
 MTWIST = [
     15, 63, 55, 47, 40, 48, 56, 12,
@@ -455,30 +455,30 @@ def all_dependencies(targets: Iterable[str], *, one_king: bool = True) -> Iterat
         open_list.extend(_dependencies(name, one_king=one_king))
 
 
-def calc_key(board: chess.BaseBoard, *, mirror: bool = False) -> str:
-    w = board.occupied_co[chess.WHITE ^ mirror]
-    b = board.occupied_co[chess.BLACK ^ mirror]
+def calc_key(board: duck_chess.BaseBoard, *, mirror: bool = False) -> str:
+    w = board.occupied_co[duck_chess.WHITE ^ mirror]
+    b = board.occupied_co[duck_chess.BLACK ^ mirror]
 
     return "".join([
-        "K" * chess.popcount(board.kings & w),
-        "Q" * chess.popcount(board.queens & w),
-        "R" * chess.popcount(board.rooks & w),
-        "B" * chess.popcount(board.bishops & w),
-        "N" * chess.popcount(board.knights & w),
-        "P" * chess.popcount(board.pawns & w),
+        "K" * duck_chess.popcount(board.kings & w),
+        "Q" * duck_chess.popcount(board.queens & w),
+        "R" * duck_chess.popcount(board.rooks & w),
+        "B" * duck_chess.popcount(board.bishops & w),
+        "N" * duck_chess.popcount(board.knights & w),
+        "P" * duck_chess.popcount(board.pawns & w),
         "v",
-        "K" * chess.popcount(board.kings & b),
-        "Q" * chess.popcount(board.queens & b),
-        "R" * chess.popcount(board.rooks & b),
-        "B" * chess.popcount(board.bishops & b),
-        "N" * chess.popcount(board.knights & b),
-        "P" * chess.popcount(board.pawns & b),
+        "K" * duck_chess.popcount(board.kings & b),
+        "Q" * duck_chess.popcount(board.queens & b),
+        "R" * duck_chess.popcount(board.rooks & b),
+        "B" * duck_chess.popcount(board.bishops & b),
+        "N" * duck_chess.popcount(board.knights & b),
+        "P" * duck_chess.popcount(board.pawns & b),
     ])
 
 
-def recalc_key(pieces: List[chess.PieceType], *, mirror: bool = False) -> str:
+def recalc_key(pieces: List[duck_chess.PieceType], *, mirror: bool = False) -> str:
     # Some endgames are stored with a different key than their filename
-    # indicates: http://talkchess.com/forum/viewtopic.php?p=695509#695509
+    # indicates: http://talkduck_chess.com/forum/viewtopic.php?p=695509#695509
 
     w = 8 if mirror else 0
     b = 0 if mirror else 8
@@ -553,7 +553,7 @@ TableT = TypeVar("TableT", bound="Table")
 class Table:
     size: List[int]
 
-    def __init__(self, path: str, *, variant: Type[chess.Board] = chess.Board) -> None:
+    def __init__(self, path: str, *, variant: Type[duck_chess.Board] = duck_chess.Board) -> None:
         self.path = path
         self.variant = variant
 
@@ -638,7 +638,7 @@ class Table:
             if wdl:
                 d.min_len = self.data[data_ptr + 1]
             else:
-                # http://www.talkchess.com/forum/viewtopic.php?p=698093#698093
+                # http://www.talkduck_chess.com/forum/viewtopic.php?p=698093#698093
                 d.min_len = 1 if self.variant.captures_compulsory else 0
             self._next = data_ptr + 2
             self.size[size_idx + 0] = 0
@@ -780,14 +780,14 @@ class Table:
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
 
-    def pawn_file(self, pos: List[chess.Square]) -> int:
+    def pawn_file(self, pos: List[duck_chess.Square]) -> int:
         for i in range(1, self.pawns[0]):
             if FLAP[pos[0]] > FLAP[pos[i]]:
                 pos[0], pos[i] = pos[i], pos[0]
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
-    def encode_piece(self, norm: List[int], pos: List[chess.Square], factor: List[int]) -> int:
+    def encode_piece(self, norm: List[int], pos: List[duck_chess.Square], factor: List[int]) -> int:
         n = self.num
 
         if self.enc_type < 3:
@@ -900,7 +900,7 @@ class Table:
 
         return idx
 
-    def encode_pawn(self, norm: List[int], pos: List[chess.Square], factor: List[int]) -> int:
+    def encode_pawn(self, norm: List[int], pos: List[duck_chess.Square], factor: List[int]) -> int:
         n = self.num
 
         if pos[0] & 0x04:
@@ -1191,7 +1191,7 @@ class WdlTable(Table):
         self.set_norm_piece(self.norm[1], self.pieces[1])
         self.tb_size[1] = self.calc_factors_piece(self.factor[1], order, self.norm[1])
 
-    def probe_wdl_table(self, board: chess.Board) -> int:
+    def probe_wdl_table(self, board: duck_chess.Board) -> int:
         try:
             with self.read_condition:
                 self.read_count += 1
@@ -1201,7 +1201,7 @@ class WdlTable(Table):
                 self.read_count -= 1
                 self.read_condition.notify()
 
-    def _probe_wdl_table(self, board: chess.Board) -> int:
+    def _probe_wdl_table(self, board: duck_chess.Board) -> int:
         self.init_table_wdl()
 
         key = calc_key(board)
@@ -1210,13 +1210,13 @@ class WdlTable(Table):
             if key != self.key:
                 cmirror = 8
                 mirror = 0x38
-                bside = int(board.turn == chess.WHITE)
+                bside = int(board.turn == duck_chess.WHITE)
             else:
                 cmirror = mirror = 0
-                bside = int(board.turn != chess.WHITE)
+                bside = int(board.turn != duck_chess.WHITE)
         else:
-            cmirror = 0 if board.turn == chess.WHITE else 8
-            mirror = 0 if board.turn == chess.WHITE else 0x38
+            cmirror = 0 if board.turn == duck_chess.WHITE else 8
+            mirror = 0 if board.turn == duck_chess.WHITE else 0x38
             bside = 0
 
         if not self.has_pawns:
@@ -1225,9 +1225,9 @@ class WdlTable(Table):
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, duck_chess.WHITE if color == 0 else duck_chess.BLACK)
 
-                for square in chess.scan_forward(bb):
+                for square in duck_chess.scan_forward(bb):
                     p[i] = square
                     i += 1
 
@@ -1239,9 +1239,9 @@ class WdlTable(Table):
             k = self.files[0].pieces[0][0] ^ cmirror
             color = k >> 3
             piece_type = k & 0x07
-            bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+            bb = board.pieces_mask(piece_type, duck_chess.WHITE if color == 0 else duck_chess.BLACK)
 
-            for square in chess.scan_forward(bb):
+            for square in duck_chess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
 
@@ -1250,9 +1250,9 @@ class WdlTable(Table):
             while i < self.num:
                 color = (pc[i] ^ cmirror) >> 3
                 piece_type = pc[i] & 0x07
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, duck_chess.WHITE if color == 0 else duck_chess.BLACK)
 
-                for square in chess.scan_forward(bb):
+                for square in duck_chess.scan_forward(bb):
                     p[i] = square ^ mirror
                     i += 1
 
@@ -1362,7 +1362,7 @@ class DtzTable(Table):
 
             self.initialized = True
 
-    def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def probe_dtz_table(self, board: duck_chess.Board, wdl: int) -> Tuple[int, int]:
         try:
             with self.read_condition:
                 self.read_count += 1
@@ -1372,7 +1372,7 @@ class DtzTable(Table):
                 self.read_count -= 1
                 self.read_condition.notify()
 
-    def _probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def _probe_dtz_table(self, board: duck_chess.Board, wdl: int) -> Tuple[int, int]:
         self.init_table_dtz()
         assert self.data
 
@@ -1382,13 +1382,13 @@ class DtzTable(Table):
             if key != self.key:
                 cmirror = 8
                 mirror = 0x38
-                bside = int(board.turn == chess.WHITE)
+                bside = int(board.turn == duck_chess.WHITE)
             else:
                 cmirror = mirror = 0
-                bside = int(board.turn != chess.WHITE)
+                bside = int(board.turn != duck_chess.WHITE)
         else:
-            cmirror = 0 if board.turn == chess.WHITE else 8
-            mirror = 0 if board.turn == chess.WHITE else 0x38
+            cmirror = 0 if board.turn == duck_chess.WHITE else 8
+            mirror = 0 if board.turn == duck_chess.WHITE else 0x38
             bside = 0
 
         if not self.has_pawns:
@@ -1403,9 +1403,9 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, duck_chess.WHITE if color == 0 else duck_chess.BLACK)
 
-                for square in chess.scan_forward(bb):
+                for square in duck_chess.scan_forward(bb):
                     p[i] = square
                     i += 1
 
@@ -1426,11 +1426,11 @@ class DtzTable(Table):
             k = self.files[0].pieces[0] ^ cmirror
             piece_type = k & 0x07
             color = k >> 3
-            bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+            bb = board.pieces_mask(piece_type, duck_chess.WHITE if color == 0 else duck_chess.BLACK)
 
             i = 0
             p = [0 for _ in range(TBPIECES)]
-            for square in chess.scan_forward(bb):
+            for square in duck_chess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
             f = self.pawn_file(p)
@@ -1441,9 +1441,9 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, duck_chess.WHITE if color == 0 else duck_chess.BLACK)
 
-                for square in chess.scan_forward(bb):
+                for square in duck_chess.scan_forward(bb):
                     p[i] = square ^ mirror
                     i += 1
 
@@ -1492,7 +1492,7 @@ class Tablebase:
     descriptors at any given time. The least recently used tables are closed,
     if necessary.
     """
-    def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> None:
+    def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: Type[duck_chess.Board] = duck_chess.Board) -> None:
         self.variant = VariantBoard
 
         self.max_fds = max_fds
@@ -1561,7 +1561,7 @@ class Tablebase:
 
         return num
 
-    def probe_wdl_table(self, board: chess.Board) -> int:
+    def probe_wdl_table(self, board: duck_chess.Board) -> int:
         # Test for variant end.
         if board.is_variant_win():
             return 2
@@ -1584,14 +1584,14 @@ class Tablebase:
 
         return table.probe_wdl_table(board)
 
-    def probe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
+    def probe_ab(self, board: duck_chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
         # Check preconditions.
         if board.uci_variant != self.variant.uci_variant:
             raise KeyError(f"tablebase has been opened for {self.variant.uci_variant}, probed with: {board.uci_variant}")
         if board.castling_rights:
             raise KeyError(f"syzygy tables do not contain positions with castling rights: {board.fen()}")
-        if chess.popcount(board.occupied) > TBPIECES:
-            raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
+        if duck_chess.popcount(board.occupied) > TBPIECES:
+            raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {duck_chess.popcount(board.occupied)}: {board.fen()}")
 
         # Special case: Variant with compulsory captures.
         if self.variant.captures_compulsory:
@@ -1625,8 +1625,8 @@ class Tablebase:
         else:
             return v, 1
 
-    def sprobe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
-        if chess.popcount(board.occupied_co[not board.turn]) > 1:
+    def sprobe_ab(self, board: duck_chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
+        if duck_chess.popcount(board.occupied_co[not board.turn]) > 1:
             v, captures_found = self.sprobe_capts(board, alpha, beta)
             if captures_found:
                 return v, 2
@@ -1636,7 +1636,7 @@ class Tablebase:
 
         threats_found = False
 
-        if threats or chess.popcount(board.occupied) >= 6:
+        if threats or duck_chess.popcount(board.occupied) >= 6:
             for threat in board.generate_legal_moves(~board.pawns):
                 board.push(threat)
                 try:
@@ -1657,7 +1657,7 @@ class Tablebase:
         else:
             return alpha, 3 if threats_found else 1
 
-    def sprobe_capts(self, board: chess.Board, alpha: int, beta: int) -> Tuple[int, int]:
+    def sprobe_capts(self, board: duck_chess.Board, alpha: int, beta: int) -> Tuple[int, int]:
         captures_found = False
 
         for move in board.generate_legal_captures():
@@ -1677,7 +1677,7 @@ class Tablebase:
 
         return alpha, captures_found
 
-    def probe_wdl(self, board: chess.Board) -> int:
+    def probe_wdl(self, board: duck_chess.Board) -> int:
         """
         Probes WDL tables for win/draw/loss information under the 50-move rule,
         assuming the position has been reached directly after a capture or
@@ -1693,19 +1693,19 @@ class Tablebase:
         loss. Mate can be forced but the position can be drawn due to the
         fifty-move rule.
 
-        >>> import chess
-        >>> import chess.syzygy
+        >>> import duck_chess
+        >>> import duck_chess.syzygy
         >>>
-        >>> with chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
-        ...     board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
+        >>> with duck_chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
+        ...     board = duck_chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
         ...     print(tablebase.probe_wdl(board))
         ...
         -2
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.syzygy.MissingTableError`) if the position could not
+            :exc:`duck_chess.syzygy.MissingTableError`) if the position could not
             be found in the tablebase. Use
-            :func:`~chess.syzygy.Tablebase.get_wdl()` if you prefer to get
+            :func:`~duck_chess.syzygy.Tablebase.get_wdl()` if you prefer to get
             ``None`` instead of an exception.
 
             Note that probing corrupted table files is undefined behavior.
@@ -1743,13 +1743,13 @@ class Tablebase:
 
         return v
 
-    def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_wdl(self, board: duck_chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_wdl(board)
         except KeyError:
             return default
 
-    def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def probe_dtz_table(self, board: duck_chess.Board, wdl: int) -> Tuple[int, int]:
         key = calc_key(board)
         try:
             table = typing.cast(DtzTable, self.dtz[key])
@@ -1760,7 +1760,7 @@ class Tablebase:
 
         return table.probe_dtz_table(board, wdl)
 
-    def probe_dtz_no_ep(self, board: chess.Board) -> int:
+    def probe_dtz_no_ep(self, board: duck_chess.Board) -> int:
         wdl, success = self.probe_ab(board, -2, 2, threats=True)
 
         if wdl == 0:
@@ -1832,7 +1832,7 @@ class Tablebase:
 
             return best
 
-    def probe_dtz(self, board: chess.Board) -> int:
+    def probe_dtz(self, board: duck_chess.Board) -> int:
         """
         Probes DTZ tables for
         `DTZ50'' information with rounding <https://syzygy-tables.info/metrics#dtz>`_.
@@ -1884,11 +1884,11 @@ class Tablebase:
         the tablebase recommendation, for a total of 2 wasted plies, may
         change the outcome of the game.
 
-        >>> import chess
-        >>> import chess.syzygy
+        >>> import duck_chess
+        >>> import duck_chess.syzygy
         >>>
-        >>> with chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
-        ...     board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
+        >>> with duck_chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
+        ...     board = duck_chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
         ...     print(tablebase.probe_dtz(board))
         ...
         -53
@@ -1899,9 +1899,9 @@ class Tablebase:
         Both DTZ and WDL tables are required in order to probe for DTZ.
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.syzygy.MissingTableError`) if the position could not
+            :exc:`duck_chess.syzygy.MissingTableError`) if the position could not
             be found in the tablebase. Use
-            :func:`~chess.syzygy.Tablebase.get_dtz()` if you prefer to get
+            :func:`~duck_chess.syzygy.Tablebase.get_dtz()` if you prefer to get
             ``None`` instead of an exception.
 
             Note that probing corrupted table files is undefined behavior.
@@ -1947,7 +1947,7 @@ class Tablebase:
 
         return v
 
-    def get_dtz(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_dtz(self, board: duck_chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_dtz(board)
         except KeyError:
@@ -1972,10 +1972,10 @@ class Tablebase:
         self.close()
 
 
-def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
+def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[duck_chess.Board] = duck_chess.Board) -> Tablebase:
     """
     Opens a collection of tables for probing. See
-    :class:`~chess.syzygy.Tablebase`.
+    :class:`~duck_chess.syzygy.Tablebase`.
 
     .. note::
 
@@ -1984,7 +1984,7 @@ def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = Tr
         reachable by captures and promotions.
         This is important because 6-piece and 5-piece (let alone 7-piece) files
         are often distributed separately, but are both required for 6-piece
-        positions. Use :func:`~chess.syzygy.Tablebase.add_directory()` to load
+        positions. Use :func:`~duck_chess.syzygy.Tablebase.add_directory()` to load
         tables from additional directories.
     """
     tables = Tablebase(max_fds=max_fds, VariantBoard=VariantBoard)

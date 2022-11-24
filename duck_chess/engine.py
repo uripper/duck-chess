@@ -1,4 +1,4 @@
-# This file is part of the python-chess library.
+# This file is part of the python-duck_chess library.
 # Copyright (C) 2012-2021 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,15 +36,15 @@ import typing
 import os
 import re
 
-import chess
+import duck_chess
 
-from chess import Color
+from duck_chess import Color
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type, TypeVar, Union
 
 try:
     from typing import Literal
-    _WdlModel = Literal["sf", "sf15", "sf14", "sf12", "lichess"]
+    _WdlModel = Literal["sf", "sf15", "sf14", "sf12", "liduck_chess"]
 except ImportError:
     # Before Python 3.8.
     _WdlModel = str  # type: ignore
@@ -60,7 +60,7 @@ ConfigMapping = Mapping[str, ConfigValue]
 LOGGER = logging.getLogger(__name__)
 
 
-MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "multipv", "ponder"]
+MANAGED_OPTIONS = ["uci_duck_chess960", "uci_variant", "multipv", "ponder"]
 
 
 class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
@@ -179,7 +179,7 @@ def run_in_background(coroutine: Callable[[concurrent.futures.Future[T]], Corout
     The coroutine and all remaining tasks continue running in the background
     until complete.
 
-    Note: This installs a :class:`chess.engine.EventLoopPolicy` for the entire
+    Note: This installs a :class:`duck_chess.engine.EventLoopPolicy` for the entire
     process.
     """
     assert asyncio.iscoroutinefunction(coroutine)
@@ -346,17 +346,17 @@ try:
         """
         Dictionary of aggregated information sent by the engine.
 
-        Commonly used keys are: ``score`` (a :class:`~chess.engine.PovScore`),
-        ``pv`` (a list of :class:`~chess.Move` objects), ``depth``,
+        Commonly used keys are: ``score`` (a :class:`~duck_chess.engine.PovScore`),
+        ``pv`` (a list of :class:`~duck_chess.Move` objects), ``depth``,
         ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``
         (``1`` for the mainline).
 
         Others: ``tbhits``, ``currmove``, ``currmovenumber``, ``hashfull``,
         ``cpuload``, ``refutation``, ``currline``, ``ebf`` (effective branching factor),
-        ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
+        ``wdl`` (a :class:`~duck_chess.engine.PovWdl`), and ``string``.
         """
         score: PovScore
-        pv: List[chess.Move]
+        pv: List[duck_chess.Move]
         depth: int
         seldepth: int
         time: float
@@ -364,12 +364,12 @@ try:
         nps: int
         tbhits: int
         multipv: int
-        currmove: chess.Move
+        currmove: duck_chess.Move
         currmovenumber: int
         hashfull: int
         cpuload: int
-        refutation: Dict[chess.Move, List[chess.Move]]
-        currline: Dict[int, List[chess.Move]]
+        refutation: Dict[duck_chess.Move, List[duck_chess.Move]]
+        currline: Dict[int, List[duck_chess.Move]]
         ebf: float
         wdl: PovWdl
         string: str
@@ -379,19 +379,19 @@ except AttributeError:
 
 
 class PlayResult:
-    """Returned by :func:`chess.engine.Protocol.play()`."""
+    """Returned by :func:`duck_chess.engine.Protocol.play()`."""
 
-    move: Optional[chess.Move]
+    move: Optional[duck_chess.Move]
     """The best move according to the engine, or ``None``."""
 
-    ponder: Optional[chess.Move]
+    ponder: Optional[duck_chess.Move]
     """The response that the engine expects after *move*, or ``None``."""
 
     info: InfoDict
     """
-    A dictionary of extra :class:`information <chess.engine.InfoDict>`
+    A dictionary of extra :class:`information <duck_chess.engine.InfoDict>`
     sent by the engine, if selected with the *info* argument of
-    :func:`~chess.engine.Protocol.play()`.
+    :func:`~duck_chess.engine.Protocol.play()`.
     """
 
     draw_offered: bool
@@ -401,8 +401,8 @@ class PlayResult:
     """Whether the engine resigned."""
 
     def __init__(self,
-                 move: Optional[chess.Move],
-                 ponder: Optional[chess.Move],
+                 move: Optional[duck_chess.Move],
+                 ponder: Optional[duck_chess.Move],
                  info: Optional[InfoDict] = None,
                  *,
                  draw_offered: bool = False,
@@ -420,7 +420,7 @@ class PlayResult:
 
 
 class Info(enum.IntFlag):
-    """Used to filter information sent by the chess engine."""
+    """Used to filter information sent by the duck_chess engine."""
     NONE = 0
     BASIC = 1
     SCORE = 2
@@ -439,13 +439,13 @@ INFO_ALL = Info.ALL
 
 
 class PovScore:
-    """A relative :class:`~chess.engine.Score` and the point of view."""
+    """A relative :class:`~duck_chess.engine.Score` and the point of view."""
 
     relative: Score
-    """The relative :class:`~chess.engine.Score`."""
+    """The relative :class:`~duck_chess.engine.Score`."""
 
     turn: Color
-    """The point of view (``chess.WHITE`` or ``chess.BLACK``)."""
+    """The point of view (``duck_chess.WHITE`` or ``duck_chess.BLACK``)."""
 
     def __init__(self, relative: Score, turn: Color) -> None:
         self.relative = relative
@@ -453,11 +453,11 @@ class PovScore:
 
     def white(self) -> Score:
         """Gets the score from White's point of view."""
-        return self.pov(chess.WHITE)
+        return self.pov(duck_chess.WHITE)
 
     def black(self) -> Score:
         """Gets the score from Black's point of view."""
-        return self.pov(chess.BLACK)
+        return self.pov(duck_chess.BLACK)
 
     def pov(self, color: Color) -> Score:
         """Gets the score from the point of view of the given *color*."""
@@ -468,7 +468,7 @@ class PovScore:
         return self.relative.is_mate()
 
     def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> PovWdl:
-        """See :func:`~chess.engine.Score.wdl()`."""
+        """See :func:`~duck_chess.engine.Score.wdl()`."""
         return PovWdl(self.relative.wdl(), self.turn)
 
     def __repr__(self) -> str:
@@ -485,13 +485,13 @@ class Score(abc.ABC):
     """
     Evaluation of a position.
 
-    The score can be :class:`~chess.engine.Cp` (centi-pawns),
-    :class:`~chess.engine.Mate` or :py:data:`~chess.engine.MateGiven`.
+    The score can be :class:`~duck_chess.engine.Cp` (centi-pawns),
+    :class:`~duck_chess.engine.Mate` or :py:data:`~duck_chess.engine.MateGiven`.
     A positive value indicates an advantage.
 
     There is a total order defined on centi-pawn and mate scores.
 
-    >>> from chess.engine import Cp, Mate, MateGiven
+    >>> from duck_chess.engine import Cp, Mate, MateGiven
     >>>
     >>> Mate(-0) < Mate(-1) < Cp(-50) < Cp(200) < Mate(4) < Mate(1) < MateGiven
     True
@@ -568,7 +568,7 @@ class Score(abc.ABC):
             * ``sf15``, the WDL model used by Stockfish 15.
             * ``sf14``, the WDL model used by Stockfish 14.
             * ``sf12``, the WDL model used by Stockfish 12.
-            * ``lichess``, the win rate model used by Lichess.
+            * ``liduck_chess``, the win rate model used by Liduck_chess.
               Does not use *ply*, and does not consider drawing chances.
         :param ply: The number of half-moves played since the starting
             position. Models may scale scores slightly differently based on
@@ -652,7 +652,7 @@ def _sf12_wins(cp: int, *, ply: int) -> int:
     x = min(1000, max(cp, -1000))
     return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
 
-def _lichess_raw_wins(cp: int) -> int:
+def _liduck_chess_raw_wins(cp: int) -> int:
     return round(1000 / (1 + math.exp(-0.004 * cp)))
 
 
@@ -669,8 +669,8 @@ class Cp(Score):
         return self.cp
 
     def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
-        if model == "lichess":
-            wins = _lichess_raw_wins(max(-1000, min(self.cp, 1000)))
+        if model == "liduck_chess":
+            wins = _liduck_chess_raw_wins(max(-1000, min(self.cp, 1000)))
             losses = 1000 - wins
         elif model == "sf12":
             wins = _sf12_wins(self.cp, ply=ply)
@@ -722,9 +722,9 @@ class Mate(Score):
             return -mate_score - self.moves
 
     def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
-        if model == "lichess":
+        if model == "liduck_chess":
             cp = (21 - min(10, abs(self.moves))) * 100
-            wins = _lichess_raw_wins(cp)
+            wins = _liduck_chess_raw_wins(cp)
             return Wdl(wins, 0, 1000 - wins) if self.moves > 0 else Wdl(1000 - wins, 0, wins)
         else:
             return Wdl(1000, 0, 0) if self.moves > 0 else Wdl(0, 0, 1000)
@@ -781,7 +781,7 @@ MateGiven = MateGivenType()
 
 class PovWdl:
     """
-    Relative :class:`win/draw/loss statistics <chess.engine.Wdl>` and the point
+    Relative :class:`win/draw/loss statistics <duck_chess.engine.Wdl>` and the point
     of view.
 
     .. deprecated:: 1.2
@@ -792,26 +792,26 @@ class PovWdl:
     """
 
     relative: Wdl
-    """The relative :class:`~chess.engine.Wdl`."""
+    """The relative :class:`~duck_chess.engine.Wdl`."""
 
     turn: Color
-    """The point of view (``chess.WHITE`` or ``chess.BLACK``)."""
+    """The point of view (``duck_chess.WHITE`` or ``duck_chess.BLACK``)."""
 
     def __init__(self, relative: Wdl, turn: Color) -> None:
         self.relative = relative
         self.turn = turn
 
     def white(self) -> Wdl:
-        """Gets the :class:`~chess.engine.Wdl` from White's point of view."""
-        return self.pov(chess.WHITE)
+        """Gets the :class:`~duck_chess.engine.Wdl` from White's point of view."""
+        return self.pov(duck_chess.WHITE)
 
     def black(self) -> Wdl:
-        """Gets the :class:`~chess.engine.Wdl` from Black's point of view."""
-        return self.pov(chess.BLACK)
+        """Gets the :class:`~duck_chess.engine.Wdl` from Black's point of view."""
+        return self.pov(duck_chess.BLACK)
 
     def pov(self, color: Color) -> Wdl:
         """
-        Gets the :class:`~chess.engine.Wdl` from the point of view of the given
+        Gets the :class:`~duck_chess.engine.Wdl` from the point of view of the given
         *color*.
         """
         return self.relative if self.turn == color else -self.relative
@@ -822,7 +822,7 @@ class PovWdl:
     def __repr__(self) -> str:
         return "PovWdl({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
 
-    # Unfortunately in python-chess v1.1.0, info["wdl"] was a simple tuple
+    # Unfortunately in python-duck_chess v1.1.0, info["wdl"] was a simple tuple
     # of the relative permille values, so we have to support __iter__,
     # __len__, __getitem__, and equality comparisons with other tuples.
     # Never mind the ordering, because that's not a sensible operation, anyway.
@@ -952,7 +952,7 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
 
 
 class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
-    """Protocol for communicating with a chess engine process."""
+    """Protocol for communicating with a duck_chess engine process."""
 
     options: MutableMapping[str, Option]
     """Dictionary of available options."""
@@ -1100,19 +1100,19 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         Configures global engine options.
 
         :param options: A dictionary of engine options where the keys are
-            names of :data:`~chess.engine.Protocol.options`. Do not set options
+            names of :data:`~duck_chess.engine.Protocol.options`. Do not set options
             that are managed automatically
-            (:func:`chess.engine.Option.is_managed()`).
+            (:func:`duck_chess.engine.Option.is_managed()`).
         """
 
     @abc.abstractmethod
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def play(self, board: duck_chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         """
         Plays a position.
 
         :param board: The position. The entire move stack will be sent to the
             engine.
-        :param limit: An instance of :class:`chess.engine.Limit` that
+        :param limit: An instance of :class:`duck_chess.engine.Limit` that
             determines when to stop thinking.
         :param game: Optional. An arbitrary object that identifies the game.
             Will automatically inform the engine if the object is not equal
@@ -1131,23 +1131,23 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
-            with :func:`~chess.engine.Protocol.configure()`.
+            with :func:`~duck_chess.engine.Protocol.configure()`.
         """
 
     @typing.overload
-    async def analyse(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
+    async def analyse(self, board: duck_chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
     @typing.overload
-    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> List[InfoDict]: ...
+    async def analyse(self, board: duck_chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> List[InfoDict]: ...
     @typing.overload
-    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]: ...
-    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]:
+    async def analyse(self, board: duck_chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]: ...
+    async def analyse(self, board: duck_chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]:
         """
         Analyses a position and returns a dictionary of
-        :class:`information <chess.engine.InfoDict>`.
+        :class:`information <duck_chess.engine.InfoDict>`.
 
         :param board: The position to analyse. The entire move stack will be
             sent to the engine.
-        :param limit: An instance of :class:`chess.engine.Limit` that
+        :param limit: An instance of :class:`duck_chess.engine.Limit` that
             determines when to stop the analysis.
         :param multipv: Optional. Analyse multiple root moves. Will return
             a list of at most *multipv* dictionaries rather than just a single
@@ -1165,7 +1165,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
-            with :func:`~chess.engine.Protocol.configure()`.
+            with :func:`~duck_chess.engine.Protocol.configure()`.
         """
         analysis = await self.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options)
 
@@ -1175,13 +1175,13 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         return analysis.info if multipv is None else analysis.multipv
 
     @abc.abstractmethod
-    async def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> AnalysisResult:
+    async def analysis(self, board: duck_chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> AnalysisResult:
         """
         Starts analysing a position.
 
         :param board: The position to analyse. The entire move stack will be
             sent to the engine.
-        :param limit: Optional. An instance of :class:`chess.engine.Limit`
+        :param limit: Optional. An instance of :class:`duck_chess.engine.Limit`
             that determines when to stop the analysis. Analysis is infinite
             by default.
         :param multipv: Optional. Analyse multiple root moves.
@@ -1198,9 +1198,9 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
-            with :func:`~chess.engine.Protocol.configure()`.
+            with :func:`~duck_chess.engine.Protocol.configure()`.
 
-        Returns :class:`~chess.engine.AnalysisResult`, a handle that allows
+        Returns :class:`~duck_chess.engine.AnalysisResult`, a handle that allows
         asynchronously iterating over the information sent by the engine
         and stopping the analysis at any time.
         """
@@ -1315,7 +1315,7 @@ class BaseCommand(Generic[ProtocolT, T]):
 class UciProtocol(Protocol):
     """
     An implementation of the
-    `Universal Chess Interface <https://www.chessprogramming.org/UCI>`_
+    `Universal Chess Interface <https://www.duck_chessprogramming.org/UCI>`_
     protocol.
     """
 
@@ -1325,10 +1325,10 @@ class UciProtocol(Protocol):
         self.config: UciOptionMap[ConfigValue] = UciOptionMap()
         self.target_config: UciOptionMap[ConfigValue] = UciOptionMap()
         self.id = {}
-        self.board = chess.Board()
+        self.board = duck_chess.Board()
         self.game: object = None
         self.first_game = True
-        self.may_ponderhit: Optional[chess.Board] = None
+        self.may_ponderhit: Optional[duck_chess.Board] = None
         self.ponderhit = False
 
     async def initialize(self) -> None:
@@ -1484,25 +1484,25 @@ class UciProtocol(Protocol):
 
         return await self.communicate(UciConfigureCommand)
 
-    def _position(self, board: chess.Board) -> None:
+    def _position(self, board: duck_chess.Board) -> None:
         # Select UCI_Variant and UCI_Chess960.
         uci_variant = type(board).uci_variant
         if "UCI_Variant" in self.options:
             self._setoption("UCI_Variant", uci_variant)
-        elif uci_variant != "chess":
+        elif uci_variant != "duck_chess":
             raise EngineError("engine does not support UCI_Variant")
 
         if "UCI_Chess960" in self.options:
-            self._setoption("UCI_Chess960", board.chess960)
-        elif board.chess960:
+            self._setoption("UCI_Chess960", board.duck_chess960)
+        elif board.duck_chess960:
             raise EngineError("engine does not support UCI_Chess960")
 
         # Send starting position.
         builder = ["position"]
         safe_history = all(board.move_stack)
         root = board.root() if safe_history else board
-        fen = root.fen(shredder=board.chess960, en_passant="fen")
-        if uci_variant == "chess" and fen == chess.STARTING_FEN:
+        fen = root.fen(shredder=board.duck_chess960, en_passant="fen")
+        if uci_variant == "duck_chess" and fen == duck_chess.STARTING_FEN:
             builder.append("startpos")
         else:
             builder.append("fen")
@@ -1518,7 +1518,7 @@ class UciProtocol(Protocol):
         self.send_line(" ".join(builder))
         self.board = board.copy(stack=False)
 
-    def _go(self, limit: Limit, *, root_moves: Optional[Iterable[chess.Move]] = None, ponder: bool = False, infinite: bool = False) -> None:
+    def _go(self, limit: Limit, *, root_moves: Optional[Iterable[duck_chess.Move]] = None, ponder: bool = False, infinite: bool = False) -> None:
         builder = ["go"]
         if ponder:
             builder.append("ponder")
@@ -1560,9 +1560,9 @@ class UciProtocol(Protocol):
                 builder.append("0000")
         self.send_line(" ".join(builder))
 
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def play(self, board: duck_chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         same_game = not self.first_game and game == self.game and not options
-        self.last_move = board.move_stack[-1] if (same_game and ponder and board.move_stack) else chess.Move.null()
+        self.last_move = board.move_stack[-1] if (same_game and ponder and board.move_stack) else duck_chess.Move.null()
 
         class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
             def __init__(self, engine: UciProtocol):
@@ -1575,7 +1575,7 @@ class UciProtocol(Protocol):
 
             def start(self, engine: UciProtocol) -> None:
                 self.info: InfoDict = {}
-                self.pondering: Optional[chess.Board] = None
+                self.pondering: Optional[duck_chess.Board] = None
                 self.sent_isready = False
                 self.start_time = time.perf_counter()
 
@@ -1638,11 +1638,11 @@ class UciProtocol(Protocol):
                         ponder_limit = copy.copy(limit)
                         if ponder_limit.white_clock is not None:
                             ponder_limit.white_clock += (ponder_limit.white_inc or 0.0)
-                            if self.pondering.turn == chess.WHITE:
+                            if self.pondering.turn == duck_chess.WHITE:
                                 ponder_limit.white_clock -= time_used
                         if ponder_limit.black_clock is not None:
                             ponder_limit.black_clock += (ponder_limit.black_inc or 0.0)
-                            if self.pondering.turn == chess.BLACK:
+                            if self.pondering.turn == duck_chess.BLACK:
                                 ponder_limit.black_clock -= time_used
                         if ponder_limit.remaining_moves:
                             ponder_limit.remaining_moves -= 1
@@ -1670,7 +1670,7 @@ class UciProtocol(Protocol):
 
         return await self.communicate(UciPlayCommand)
 
-    async def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> AnalysisResult:
+    async def analysis(self, board: duck_chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> AnalysisResult:
         class UciAnalysisCommand(BaseCommand[UciProtocol, AnalysisResult]):
             def start(self, engine: UciProtocol) -> None:
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
@@ -1740,7 +1740,7 @@ class UciProtocol(Protocol):
 
 UCI_REGEX = re.compile(r"^[a-h][1-8][a-h][1-8][pnbrqk]?|[PNBRQK]@[a-h][1-8]|0000\Z")
 
-def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
+def _parse_uci_info(arg: str, root_board: duck_chess.Board, selector: Info = INFO_ALL) -> InfoDict:
     info: InfoDict = {}
     if not selector:
         return info
@@ -1783,7 +1783,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 LOGGER.error("Exception parsing score from info: %r", arg)
         elif parameter == "currmove":
             try:
-                info["currmove"] = chess.Move.from_uci(tokens.pop(0))
+                info["currmove"] = duck_chess.Move.from_uci(tokens.pop(0))
             except (ValueError, IndexError):
                 LOGGER.error("Exception parsing currmove from info: %r", arg)
         elif parameter == "currline" and selector & INFO_CURRLINE:
@@ -1792,7 +1792,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                     info["currline"] = {}
 
                 cpunr = int(tokens.pop(0))
-                currline: List[chess.Move] = []
+                currline: List[duck_chess.Move] = []
                 info["currline"][cpunr] = currline
 
                 board = root_board.copy(stack=False)
@@ -1808,7 +1808,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 board = root_board.copy(stack=False)
                 refuted = board.push_uci(tokens.pop(0))
 
-                refuted_by: List[chess.Move] = []
+                refuted_by: List[duck_chess.Move] = []
                 info["refutation"][refuted] = refuted_by
 
                 while tokens and UCI_REGEX.match(tokens[0]):
@@ -1817,7 +1817,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 LOGGER.error("Exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "pv" and selector & INFO_PV:
             try:
-                pv: List[chess.Move] = []
+                pv: List[duck_chess.Move] = []
                 info["pv"] = pv
                 board = root_board.copy(stack=False)
                 while tokens and UCI_REGEX.match(tokens[0]):
@@ -1832,7 +1832,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
 
     return info
 
-def _parse_uci_bestmove(board: chess.Board, args: str) -> BestMove:
+def _parse_uci_bestmove(board: duck_chess.Board, args: str) -> BestMove:
     tokens = args.split()
 
     move = None
@@ -1932,7 +1932,7 @@ class XBoardProtocol(Protocol):
         }
         self.config: Dict[str, ConfigValue] = {}
         self.target_config: Dict[str, ConfigValue] = {}
-        self.board = chess.Board()
+        self.board = duck_chess.Board()
         self.game: object = None
         self.first_game = True
 
@@ -2034,7 +2034,7 @@ class XBoardProtocol(Protocol):
 
         self.send_line(f"variant {variant}")
 
-    def _new(self, board: chess.Board, game: object, options: ConfigMapping) -> None:
+    def _new(self, board: duck_chess.Board, game: object, options: ConfigMapping) -> None:
         self._configure(options)
 
         # Set up starting position.
@@ -2048,7 +2048,7 @@ class XBoardProtocol(Protocol):
             self.send_line("new")
 
             variant = type(board).xboard_variant
-            if variant == "normal" and board.chess960:
+            if variant == "normal" and board.duck_chess960:
                 self._variant("fischerandom")
             elif variant != "normal":
                 self._variant(variant)
@@ -2061,8 +2061,8 @@ class XBoardProtocol(Protocol):
         self.send_line("force")
 
         if new_game:
-            fen = root.fen(shredder=board.chess960, en_passant="fen")
-            if variant != "normal" or fen != chess.STARTING_FEN or board.chess960:
+            fen = root.fen(shredder=board.duck_chess960, en_passant="fen")
+            if variant != "normal" or fen != duck_chess.STARTING_FEN or board.duck_chess960:
                 self.send_line(f"setboard {fen}")
 
         # Undo moves until common position.
@@ -2109,7 +2109,7 @@ class XBoardProtocol(Protocol):
 
         return await self.communicate(XBoardPingCommand)
 
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def play(self, board: duck_chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         if root_moves is not None:
             raise EngineError("play with root_moves, but xboard supports 'include' only in analysis mode")
 
@@ -2247,7 +2247,7 @@ class XBoardProtocol(Protocol):
 
         return await self.communicate(XBoardPlayCommand)
 
-    async def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> AnalysisResult:
+    async def analysis(self, board: duck_chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> AnalysisResult:
         if multipv is not None:
             raise EngineError("xboard engine does not support multipv")
 
@@ -2257,7 +2257,7 @@ class XBoardProtocol(Protocol):
         class XBoardAnalysisCommand(BaseCommand[XBoardProtocol, AnalysisResult]):
             def start(self, engine: XBoardProtocol) -> None:
                 self.stopped = False
-                self.best_move: Optional[chess.Move] = None
+                self.best_move: Optional[duck_chess.Move] = None
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
                 self.final_pong: Optional[str] = None
 
@@ -2424,7 +2424,7 @@ def _parse_xboard_option(feature: str) -> Option:
     return Option(name, type, default, min, max, var)
 
 
-def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
+def _parse_xboard_post(line: str, root_board: duck_chess.Board, selector: Info = INFO_ALL) -> InfoDict:
     # Format: depth score time nodes [seldepth [nps [tbhits]]] pv
     info: InfoDict = {}
 
@@ -2492,15 +2492,15 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
 
 
 class BestMove:
-    """Returned by :func:`chess.engine.AnalysisResult.wait()`."""
+    """Returned by :func:`duck_chess.engine.AnalysisResult.wait()`."""
 
-    move: Optional[chess.Move]
+    move: Optional[duck_chess.Move]
     """The best move according to the engine, or ``None``."""
 
-    ponder: Optional[chess.Move]
+    ponder: Optional[duck_chess.Move]
     """The response that the engine expects after *move*, or ``None``."""
 
-    def __init__(self, move: Optional[chess.Move], ponder: Optional[chess.Move]):
+    def __init__(self, move: Optional[duck_chess.Move], ponder: Optional[duck_chess.Move]):
         self.move = move
         self.ponder = ponder
 
@@ -2512,14 +2512,14 @@ class BestMove:
 class AnalysisResult:
     """
     Handle to ongoing engine analysis.
-    Returned by :func:`chess.engine.Protocol.analysis()`.
+    Returned by :func:`duck_chess.engine.Protocol.analysis()`.
 
     Can be used to asynchronously iterate over information sent by the engine.
 
     Automatically stops the analysis when used as a context manager.
     """
 
-    multipv: List[chess.engine.InfoDict]
+    multipv: List[duck_chess.engine.InfoDict]
     """
     A list of dictionaries with aggregated information sent by the engine.
     One item for each root move.
@@ -2584,9 +2584,9 @@ class AnalysisResult:
 
         It might be more convenient to use ``async for info in analysis: ...``.
 
-        :raises: :exc:`chess.engine.AnalysisComplete` if the analysis is
+        :raises: :exc:`duck_chess.engine.AnalysisComplete` if the analysis is
             complete (or has been stopped) and all information has been
-            consumed. Use :func:`~chess.engine.AnalysisResult.next()` if you
+            consumed. Use :func:`~duck_chess.engine.AnalysisResult.next()` if you
             prefer to get ``None`` instead of an exception.
         """
         if self._seen_kork:
@@ -2603,14 +2603,14 @@ class AnalysisResult:
 
     def would_block(self) -> bool:
         """
-        Checks if calling :func:`~chess.engine.AnalysisResult.get()`,
-        calling :func:`~chess.engine.AnalysisResult.next()`,
+        Checks if calling :func:`~duck_chess.engine.AnalysisResult.get()`,
+        calling :func:`~duck_chess.engine.AnalysisResult.next()`,
         or advancing the iterator one step would require waiting for the
         engine.
 
         These functions would return immediately if information is
         pending (queue is not
-        :func:`empty <chess.engine.AnalysisResult.empty()>`) or if the search
+        :func:`empty <duck_chess.engine.AnalysisResult.empty()>`) or if the search
         is finished.
         """
         return not self._seen_kork and self._queue.empty()
@@ -2703,11 +2703,11 @@ async def _async(sync: Callable[[], T]) -> T:
 class SimpleEngine:
     """
     Synchronous wrapper around a transport and engine protocol pair. Provides
-    the same methods and attributes as :class:`chess.engine.Protocol`
+    the same methods and attributes as :class:`duck_chess.engine.Protocol`
     with blocking functions instead of coroutines.
 
     You may not concurrently modify objects passed to any of the methods. Other
-    than that, :class:`~chess.engine.SimpleEngine` is thread-safe. When sending
+    than that, :class:`~duck_chess.engine.SimpleEngine` is thread-safe. When sending
     a new command to the engine, any previous running command will be cancelled
     as soon as possible.
 
@@ -2772,7 +2772,7 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
-    def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    def play(self, board: duck_chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         with self._not_shut_down():
             coro = asyncio.wait_for(
                 self.protocol.play(board, limit, game=game, info=info, ponder=ponder, draw_offered=draw_offered, root_moves=root_moves, options=options),
@@ -2781,12 +2781,12 @@ class SimpleEngine:
         return future.result()
 
     @typing.overload
-    def analyse(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
+    def analyse(self, board: duck_chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
     @typing.overload
-    def analyse(self, board: chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> List[InfoDict]: ...
+    def analyse(self, board: duck_chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> List[InfoDict]: ...
     @typing.overload
-    def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, List[InfoDict]]: ...
-    def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, List[InfoDict]]:
+    def analyse(self, board: duck_chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, List[InfoDict]]: ...
+    def analyse(self, board: duck_chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, List[InfoDict]]:
         with self._not_shut_down():
             coro = asyncio.wait_for(
                 self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options),
@@ -2794,7 +2794,7 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
-    def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> SimpleAnalysisResult:
+    def analysis(self, board: duck_chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[duck_chess.Move]] = None, options: ConfigMapping = {}) -> SimpleAnalysisResult:
         with self._not_shut_down():
             coro = asyncio.wait_for(
                 self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options),
@@ -2842,7 +2842,7 @@ class SimpleEngine:
     def popen_uci(cls, command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> SimpleEngine:
         """
         Spawns and initializes a UCI engine.
-        Returns a :class:`~chess.engine.SimpleEngine` instance.
+        Returns a :class:`~duck_chess.engine.SimpleEngine` instance.
         """
         return cls.popen(UciProtocol, command, timeout=timeout, debug=debug, setpgrp=setpgrp, **popen_args)
 
@@ -2850,7 +2850,7 @@ class SimpleEngine:
     def popen_xboard(cls, command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> SimpleEngine:
         """
         Spawns and initializes an XBoard engine.
-        Returns a :class:`~chess.engine.SimpleEngine` instance.
+        Returns a :class:`~duck_chess.engine.SimpleEngine` instance.
         """
         return cls.popen(XBoardProtocol, command, timeout=timeout, debug=debug, setpgrp=setpgrp, **popen_args)
 
@@ -2867,8 +2867,8 @@ class SimpleEngine:
 
 class SimpleAnalysisResult:
     """
-    Synchronous wrapper around :class:`~chess.engine.AnalysisResult`. Returned
-    by :func:`chess.engine.SimpleEngine.analysis()`.
+    Synchronous wrapper around :class:`~duck_chess.engine.AnalysisResult`. Returned
+    by :func:`duck_chess.engine.SimpleEngine.analysis()`.
     """
 
     def __init__(self, simple_engine: SimpleEngine, inner: AnalysisResult) -> None:
