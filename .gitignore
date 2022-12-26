@@ -4,3 +4,316 @@ Pieces/Goose.svg
 Pieces/gorilla.svg
 Pieces/Monke.svg
 Pieces/Sheep.svg
+__pycache__/CHANGELOG-OLD.rst
+__pycache__/CHANGELOG.rst
+__pycache__/chess/__init__.py
+__pycache__/chess/_interactive.py
+__pycache__/chess/engine.py
+__pycache__/chess/gaviota.py
+__pycache__/chess/pgn.py
+__pycache__/chess/polyglot.py
+__pycache__/chess/py.typed
+__pycache__/chess/svg.py
+__pycache__/chess/syzygy.py
+__pycache__/chess/variant.py
+__pycache__/chess/__pycache__/__init__.cpython-38.pyc
+__pycache__/chess/__pycache__/_interactive.cpython-38.pyc
+__pycache__/chess/__pycache__/engine.cpython-38.pyc
+__pycache__/chess/__pycache__/gaviota.cpython-38.pyc
+__pycache__/chess/__pycache__/pgn.cpython-38.pyc
+__pycache__/chess/__pycache__/polyglot.cpython-38.pyc
+__pycache__/chess/__pycache__/svg.cpython-38.pyc
+__pycache__/chess/__pycache__/syzygy.cpython-38.pyc
+__pycache__/chess/__pycache__/variant.cpython-38.pyc
+__pycache__/data/endgame-dm-4.epd
+__pycache__/data/endgame-dm-5.epd
+__pycache__/data/endgame.epd
+__pycache__/data/suicide-dtm.epd
+__pycache__/data/suicide-dtz.epd
+__pycache__/data/suicide-stats.epd
+__pycache__/data/gaviota/kbk.gtb.cp4
+__pycache__/data/gaviota/knk.gtb.cp4
+__pycache__/data/gaviota/kpk.gtb.cp4
+__pycache__/data/gaviota/kqk.gtb.cp4
+__pycache__/data/gaviota/krk.gtb.cp4
+__pycache__/data/gaviota/MD5SUMS.txt
+__pycache__/data/gaviota/SOURCE.txt
+__pycache__/data/gaviota/TEST-SOURCE.txt
+__pycache__/data/pgn/anastasian-lewis.pgn
+__pycache__/data/pgn/antichess-programfox.pgn
+__pycache__/data/pgn/chessbase-empty-line.pgn
+__pycache__/data/pgn/cutechess-fischerrandom.pgn
+__pycache__/data/pgn/kasparov-deep-blue-1997.pgn
+__pycache__/data/pgn/knightvuillaume-jannlee-zh-lichess.pgn
+__pycache__/data/pgn/molinari-bordais-1979.pgn
+__pycache__/data/pgn/saturs-jannlee-zh-lichess.pgn
+__pycache__/data/pgn/stockfish-learning.pgn
+__pycache__/data/pgn/uci-moves.pgn
+__pycache__/data/polyglot/lasker-trap.bin
+__pycache__/data/polyglot/performance.bin
+__pycache__/data/polyglot/SOURCE.txt
+__pycache__/data/syzygy/atomic/SOURCE-5.txt
+__pycache__/data/syzygy/atomic/SOURCE-6-DTZ.txt
+__pycache__/data/syzygy/atomic/SOURCE-6-WDL.txt
+__pycache__/data/syzygy/giveaway/SOURCE-5.txt
+__pycache__/data/syzygy/giveaway/SOURCE-6.txt
+__pycache__/data/syzygy/regular/KBBvK.rtbw
+__pycache__/data/syzygy/regular/KBBvK.rtbz
+__pycache__/data/syzygy/regular/KBNvK.rtbw
+__pycache__/data/syzygy/regular/KBNvK.rtbz
+__pycache__/data/syzygy/regular/KBPvK.rtbw
+__pycache__/data/syzygy/regular/KBPvK.rtbz
+__pycache__/data/syzygy/regular/KBvK.rtbw
+__pycache__/data/syzygy/regular/KBvK.rtbz
+__pycache__/data/syzygy/regular/KBvKB.rtbw
+__pycache__/data/syzygy/regular/KBvKB.rtbz
+__pycache__/data/syzygy/regular/KBvKN.rtbw
+__pycache__/data/syzygy/regular/KBvKN.rtbz
+__pycache__/data/syzygy/regular/KBvKP.rtbw
+__pycache__/data/syzygy/regular/KBvKP.rtbz
+__pycache__/data/syzygy/regular/KNNvK.rtbw
+__pycache__/data/syzygy/regular/KNNvK.rtbz
+__pycache__/data/syzygy/regular/KNPvK.rtbw
+__pycache__/data/syzygy/regular/KNPvK.rtbz
+__pycache__/data/syzygy/regular/KNvK.rtbw
+__pycache__/data/syzygy/regular/KNvK.rtbz
+__pycache__/data/syzygy/regular/KNvKN.rtbw
+__pycache__/data/syzygy/regular/KNvKN.rtbz
+__pycache__/data/syzygy/regular/KNvKP.rtbw
+__pycache__/data/syzygy/regular/KNvKP.rtbz
+__pycache__/data/syzygy/regular/KPPvK.rtbw
+__pycache__/data/syzygy/regular/KPPvK.rtbz
+__pycache__/data/syzygy/regular/KPvK.rtbw
+__pycache__/data/syzygy/regular/KPvK.rtbz
+__pycache__/data/syzygy/regular/KPvKP.rtbw
+__pycache__/data/syzygy/regular/KPvKP.rtbz
+__pycache__/data/syzygy/regular/KQBvK.rtbw
+__pycache__/data/syzygy/regular/KQBvK.rtbz
+__pycache__/data/syzygy/regular/KQNvK.rtbw
+__pycache__/data/syzygy/regular/KQNvK.rtbz
+__pycache__/data/syzygy/regular/KQPvK.rtbw
+__pycache__/data/syzygy/regular/KQPvK.rtbz
+__pycache__/data/syzygy/regular/KQQvK.rtbw
+__pycache__/data/syzygy/regular/KQQvK.rtbz
+__pycache__/data/syzygy/regular/KQRvK.rtbw
+__pycache__/data/syzygy/regular/KQRvK.rtbz
+__pycache__/data/syzygy/regular/KQvK.rtbw
+__pycache__/data/syzygy/regular/KQvK.rtbz
+__pycache__/data/syzygy/regular/KQvKB.rtbw
+__pycache__/data/syzygy/regular/KQvKB.rtbz
+__pycache__/data/syzygy/regular/KQvKN.rtbw
+__pycache__/data/syzygy/regular/KQvKN.rtbz
+__pycache__/data/syzygy/regular/KQvKP.rtbw
+__pycache__/data/syzygy/regular/KQvKP.rtbz
+__pycache__/data/syzygy/regular/KQvKQ.rtbw
+__pycache__/data/syzygy/regular/KQvKQ.rtbz
+__pycache__/data/syzygy/regular/KQvKR.rtbw
+__pycache__/data/syzygy/regular/KQvKR.rtbz
+__pycache__/data/syzygy/regular/KRBvK.rtbw
+__pycache__/data/syzygy/regular/KRBvK.rtbz
+__pycache__/data/syzygy/regular/KRNvK.rtbw
+__pycache__/data/syzygy/regular/KRNvK.rtbz
+__pycache__/data/syzygy/regular/KRPvK.rtbw
+__pycache__/data/syzygy/regular/KRPvK.rtbz
+__pycache__/data/syzygy/regular/KRRvK.rtbw
+__pycache__/data/syzygy/regular/KRRvK.rtbz
+__pycache__/data/syzygy/regular/KRvK.rtbw
+__pycache__/data/syzygy/regular/KRvK.rtbz
+__pycache__/data/syzygy/regular/KRvKB.rtbw
+__pycache__/data/syzygy/regular/KRvKB.rtbz
+__pycache__/data/syzygy/regular/KRvKN.rtbw
+__pycache__/data/syzygy/regular/KRvKN.rtbz
+__pycache__/data/syzygy/regular/KRvKP.rtbw
+__pycache__/data/syzygy/regular/KRvKP.rtbz
+__pycache__/data/syzygy/regular/KRvKR.rtbw
+__pycache__/data/syzygy/regular/KRvKR.rtbz
+__pycache__/data/syzygy/regular/SOURCE-5.txt
+__pycache__/data/syzygy/regular/SOURCE-6.txt
+__pycache__/data/syzygy/regular/SOURCE.txt
+__pycache__/data/syzygy/suicide/SOURCE-5.txt
+__pycache__/data/syzygy/suicide/SOURCE-6-PAWNLESS.txt
+__pycache__/data/syzygy/suicide/TEST-SOURCE.txt
+__pycache__/docs/changelog.rst
+__pycache__/docs/conf.py
+__pycache__/docs/core.rst
+__pycache__/docs/engine.rst
+__pycache__/docs/gaviota.rst
+__pycache__/docs/index.rst
+__pycache__/docs/make.bat
+__pycache__/docs/Makefile
+__pycache__/docs/Ne4.svg
+__pycache__/docs/pgn.rst
+__pycache__/docs/polyglot.rst
+__pycache__/docs/requirements.txt
+__pycache__/docs/svg.rst
+__pycache__/docs/syzygy.rst
+__pycache__/docs/variant.rst
+__pycache__/docs/wR.svg
+__pycache__/docs/images/clente-chess.png
+__pycache__/docs/images/crazyara.png
+__pycache__/docs/images/jcchess.png
+__pycache__/docs/images/maia.png
+__pycache__/docs/images/pettingzoo.png
+__pycache__/docs/images/syzygy.png
+data copy/endgame-dm-4.epd
+data copy/endgame-dm-5.epd
+data copy/endgame.epd
+data copy/suicide-dtm.epd
+data copy/suicide-dtz.epd
+data copy/suicide-stats.epd
+data copy/gaviota/kbk.gtb.cp4
+data copy/gaviota/knk.gtb.cp4
+data copy/gaviota/kpk.gtb.cp4
+data copy/gaviota/kqk.gtb.cp4
+data copy/gaviota/krk.gtb.cp4
+data copy/gaviota/MD5SUMS.txt
+data copy/gaviota/SOURCE.txt
+data copy/gaviota/TEST-SOURCE.txt
+data copy/pgn/anastasian-lewis.pgn
+data copy/pgn/antichess-programfox.pgn
+data copy/pgn/chessbase-empty-line.pgn
+data copy/pgn/cutechess-fischerrandom.pgn
+data copy/pgn/kasparov-deep-blue-1997.pgn
+data copy/pgn/knightvuillaume-jannlee-zh-lichess.pgn
+data copy/pgn/molinari-bordais-1979.pgn
+data copy/pgn/saturs-jannlee-zh-lichess.pgn
+data copy/pgn/stockfish-learning.pgn
+data copy/pgn/uci-moves.pgn
+data copy/polyglot/lasker-trap.bin
+data copy/polyglot/performance.bin
+data copy/polyglot/SOURCE.txt
+data copy/syzygy/atomic/SOURCE-5.txt
+data copy/syzygy/atomic/SOURCE-6-DTZ.txt
+data copy/syzygy/atomic/SOURCE-6-WDL.txt
+data copy/syzygy/giveaway/SOURCE-5.txt
+data copy/syzygy/giveaway/SOURCE-6.txt
+data copy/syzygy/regular/KBBvK.rtbw
+data copy/syzygy/regular/KBBvK.rtbz
+data copy/syzygy/regular/KBNvK.rtbw
+data copy/syzygy/regular/KBNvK.rtbz
+data copy/syzygy/regular/KBPvK.rtbw
+data copy/syzygy/regular/KBPvK.rtbz
+data copy/syzygy/regular/KBvK.rtbw
+data copy/syzygy/regular/KBvK.rtbz
+data copy/syzygy/regular/KBvKB.rtbw
+data copy/syzygy/regular/KBvKB.rtbz
+data copy/syzygy/regular/KBvKN.rtbw
+data copy/syzygy/regular/KBvKN.rtbz
+data copy/syzygy/regular/KBvKP.rtbw
+data copy/syzygy/regular/KBvKP.rtbz
+data copy/syzygy/regular/KNNvK.rtbw
+data copy/syzygy/regular/KNNvK.rtbz
+data copy/syzygy/regular/KNPvK.rtbw
+data copy/syzygy/regular/KNPvK.rtbz
+data copy/syzygy/regular/KNvK.rtbw
+data copy/syzygy/regular/KNvK.rtbz
+data copy/syzygy/regular/KNvKN.rtbw
+data copy/syzygy/regular/KNvKN.rtbz
+data copy/syzygy/regular/KNvKP.rtbw
+data copy/syzygy/regular/KNvKP.rtbz
+data copy/syzygy/regular/KPPvK.rtbw
+data copy/syzygy/regular/KPPvK.rtbz
+data copy/syzygy/regular/KPvK.rtbw
+data copy/syzygy/regular/KPvK.rtbz
+data copy/syzygy/regular/KPvKP.rtbw
+data copy/syzygy/regular/KPvKP.rtbz
+data copy/syzygy/regular/KQBvK.rtbw
+data copy/syzygy/regular/KQBvK.rtbz
+data copy/syzygy/regular/KQNvK.rtbw
+data copy/syzygy/regular/KQNvK.rtbz
+data copy/syzygy/regular/KQPvK.rtbw
+data copy/syzygy/regular/KQPvK.rtbz
+data copy/syzygy/regular/KQQvK.rtbw
+data copy/syzygy/regular/KQQvK.rtbz
+data copy/syzygy/regular/KQRvK.rtbw
+data copy/syzygy/regular/KQRvK.rtbz
+data copy/syzygy/regular/KQvK.rtbw
+data copy/syzygy/regular/KQvK.rtbz
+data copy/syzygy/regular/KQvKB.rtbw
+data copy/syzygy/regular/KQvKB.rtbz
+data copy/syzygy/regular/KQvKN.rtbw
+data copy/syzygy/regular/KQvKN.rtbz
+data copy/syzygy/regular/KQvKP.rtbw
+data copy/syzygy/regular/KQvKP.rtbz
+data copy/syzygy/regular/KQvKQ.rtbw
+data copy/syzygy/regular/KQvKQ.rtbz
+data copy/syzygy/regular/KQvKR.rtbw
+data copy/syzygy/regular/KQvKR.rtbz
+data copy/syzygy/regular/KRBvK.rtbw
+data copy/syzygy/regular/KRBvK.rtbz
+data copy/syzygy/regular/KRNvK.rtbw
+data copy/syzygy/regular/KRNvK.rtbz
+data copy/syzygy/regular/KRPvK.rtbw
+data copy/syzygy/regular/KRPvK.rtbz
+data copy/syzygy/regular/KRRvK.rtbw
+data copy/syzygy/regular/KRRvK.rtbz
+data copy/syzygy/regular/KRvK.rtbw
+data copy/syzygy/regular/KRvK.rtbz
+data copy/syzygy/regular/KRvKB.rtbw
+data copy/syzygy/regular/KRvKB.rtbz
+data copy/syzygy/regular/KRvKN.rtbw
+data copy/syzygy/regular/KRvKN.rtbz
+data copy/syzygy/regular/KRvKP.rtbw
+data copy/syzygy/regular/KRvKP.rtbz
+data copy/syzygy/regular/KRvKR.rtbw
+data copy/syzygy/regular/KRvKR.rtbz
+data copy/syzygy/regular/SOURCE-5.txt
+data copy/syzygy/regular/SOURCE-6.txt
+data copy/syzygy/regular/SOURCE.txt
+data copy/syzygy/suicide/SOURCE-5.txt
+data copy/syzygy/suicide/SOURCE-6-PAWNLESS.txt
+data copy/syzygy/suicide/TEST-SOURCE.txt
+python-chess-stub/README.rst
+python-chess-stub/setup.py
+duck_chess/__pycache__/__init__.cpython-311.pyc
+duck_chess/__pycache__/duck_pgn.cpython-311.pyc
+duck_chess/__pycache__/variant.cpython-311.pyc
+python-chess-stub/README.rst
+python-chess-stub/setup.py
+pgn_games/bacon_rat_hotdog_58290.pgn.txt
+pgn_games/beer_wine_dog_77373.pgn.txt
+pgn_games/chicken_tortilla chips_cat_71057.pgn.txt
+pgn_games/dog_wine_milk_19145.pgn.txt
+docs copy/changelog.rst
+docs copy/conf.py
+docs copy/core.rst
+docs copy/engine.rst
+docs copy/gaviota.rst
+docs copy/index.rst
+docs copy/make.bat
+docs copy/Makefile
+docs copy/Ne4.svg
+docs copy/pgn.rst
+docs copy/polyglot.rst
+docs copy/requirements.txt
+docs copy/svg.rst
+docs copy/syzygy.rst
+docs copy/variant.rst
+docs copy/wR.svg
+docs copy/images/clente-chess.png
+docs copy/images/crazyara.png
+docs copy/images/jcchess.png
+docs copy/images/maia.png
+docs copy/images/pettingzoo.png
+docs copy/images/syzygy.png
+chess copy/__init__.py
+chess copy/_interactive.py
+chess copy/engine.py
+chess copy/gaviota.py
+chess copy/pgn.py
+chess copy/polyglot.py
+chess copy/py.typed
+chess copy/svg.py
+chess copy/syzygy.py
+chess copy/variant.py
+chess copy/__pycache__/__init__.cpython-38.pyc
+chess copy/__pycache__/_interactive.cpython-38.pyc
+chess copy/__pycache__/engine.cpython-38.pyc
+chess copy/__pycache__/gaviota.cpython-38.pyc
+chess copy/__pycache__/pgn.cpython-38.pyc
+chess copy/__pycache__/polyglot.cpython-38.pyc
+chess copy/__pycache__/svg.cpython-38.pyc
+chess copy/__pycache__/syzygy.cpython-38.pyc
+chess copy/__pycache__/variant.cpython-38.pyc
+CHANGELOG copy.rst
+CHANGELOG-OLD copy.rst

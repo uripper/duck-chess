@@ -467,7 +467,8 @@ class Gameplay:
                         to_move = self.coord_list[index]
                         total_move = self.from_move + to_move
                         
-                        self.board.duck_push(duck_chess.Move.from_uci(total_move))
+                        self.board.duck_push(duck_chess.M
+                                             ove.from_uci(total_move))
                         self.SCREEN_update()
                         self.FROMMOVE = False
                         self.TOMOVE = False
