@@ -85,15 +85,15 @@ def make_pgn(move_list):
     parsed = []
     for i in range(len(shifted_move_list)):
         j = i+1
-        first = "".join(shifted_move_list[i-1])
         second = "".join(shifted_move_list[i])
 
         if j % 2 == 0:
+            first = "".join(shifted_move_list[i-1])
             parsed.append(f"{k}. {first} .. {second}")
             k+=1
         elif i == len(shifted_move_list)-1:
             parsed.append(f"{k}. {second}")
-            
+
     word_1 = random.choice(ran_words)
     word_2 = random.choice(ran_words)
     word_3 = random.choice(ran_words)
@@ -110,6 +110,6 @@ def make_pgn(move_list):
         for i in parsed:
             q = " ".join(i)
             q = q.replace(" ","").replace(".",". ").replace(". ."," ..")
-            
+
             f.write("\n")
             f.write(q)

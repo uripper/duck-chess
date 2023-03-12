@@ -292,10 +292,11 @@ class GameNode(abc.ABC):
         Checks if this node is the first variation from the point of view of its
         parent. The root node is also in the main variation.
         """
-        if not self.parent:
-            return True
-
-        return not self.parent.variations or self.parent.variations[0] == self
+        return (
+            not self.parent.variations or self.parent.variations[0] == self
+            if self.parent
+            else True
+        )
 
     def __getitem__(self, move: Union[int, duck_chess.Move, GameNode]) -> ChildNode:
         try:
@@ -392,7 +393,7 @@ class GameNode(abc.ABC):
 
         # Merge comment and NAGs.
         if node.comment:
-            node.comment += " " + comment
+            node.comment += f" {comment}"
         else:
             node.comment = comment
 
@@ -462,9 +463,10 @@ class GameNode(abc.ABC):
         """
         arrows = []
         for match in ARROWS_REGEX.finditer(self.comment):
-            for group in match.group("arrows").split(","):
-                arrows.append(duck_chess.svg.Arrow.from_pgn(group))
-
+            arrows.extend(
+                duck_chess.svg.Arrow.from_pgn(group)
+                for group in match.group("arrows").split(",")
+            )
         return arrows
 
     def set_arrows(self, arrows: Iterable[Union[duck_chess.svg.Arrow, Tuple[Square, Square]]]) -> None:
@@ -492,7 +494,7 @@ class GameNode(abc.ABC):
             prefix += f"[%cal {','.join(cal)}]"
 
         if prefix and self.comment and not self.comment.startswith(" ") and not self.comment.startswith("\n"):
-            self.comment = prefix + " " + self.comment
+            self.comment = f"{prefix} {self.comment}"
         else:
             self.comment = prefix + self.comment
 
@@ -919,9 +921,8 @@ class Headers(MutableMapping[str, str]):
     def variant(self) -> Type[duck_chess.Board]:
         if "Variant" not in self or self.is_duck_chess960() or self.is_wild():
             return duck_chess.Board
-        else:
-            from duck_chess.variant import find_variant
-            return find_variant(self["Variant"])
+        from duck_chess.variant import find_variant
+        return find_variant(self["Variant"])
 
     def board(self) -> duck_chess.Board:
         VariantBoard = self.variant()
@@ -941,10 +942,7 @@ class Headers(MutableMapping[str, str]):
             self._others[key] = value
 
     def __getitem__(self, key: str) -> str:
-        if key in TAG_ROSTER:
-            return self._tag_roster[key]
-        else:
-            return self._others[key]
+        return self._tag_roster[key] if key in TAG_ROSTER else self._others[key]
 
     def __delitem__(self, key: str) -> None:
         if key in TAG_ROSTER:
@@ -1344,23 +1342,23 @@ class StringExporterMixin:
 
     def visit_nag(self, nag: int) -> None:
         if self.comments and (self.variations or not self.variation_depth):
-            self.write_token("$" + str(nag) + " ")
+            self.write_token(f"${nag} ")
 
     def visit_move(self, board: duck_chess.Board, move: duck_chess.Move) -> None:
         if self.variations or not self.variation_depth:
             # Write the move number.
             if board.turn == duck_chess.WHITE:
-                self.write_token(str(board.fullmove_number) + ". ")
+                self.write_token(f"{str(board.fullmove_number)}. ")
             elif self.force_movenumber:
-                self.write_token(str(board.fullmove_number) + "... ")
+                self.write_token(f"{str(board.fullmove_number)}... ")
 
             # Write the SAN.
-            self.write_token(board.san(move) + " ")
+            self.write_token(f"{board.san(move)} ")
 
             self.force_movenumber = False
 
     def visit_result(self, result: str) -> None:
-        self.write_token(result + " ")
+        self.write_token(f"{result} ")
 
 
 class StringExporter(StringExporterMixin, BaseVisitor[str]):
@@ -1533,8 +1531,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
         consecutive_empty_lines = 0
 
         if not skipping_game:
-            tag_match = TAG_REGEX.match(line)
-            if tag_match:
+            if tag_match := TAG_REGEX.match(line):
                 visitor.visit_header(tag_match.group(1), tag_match.group(2))
                 if unmanaged_headers is not None:
                     unmanaged_headers[tag_match.group(1)] = tag_match.group(2)

@@ -408,8 +408,7 @@ def board(board: Optional[duck_chess.BaseBoard] = None, *,
         y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
 
         if board is not None:
-            piece = board.piece_at(square)
-            if piece:
+            if piece := board.piece_at(square):
                 href = f"#{duck_chess.COLOR_NAMES[piece.color]}-{duck_chess.DUCK_NAMES[piece.piece_type]}"
                 # if "duck" in href:
                 #     href =f"#white-king"

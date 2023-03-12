@@ -164,7 +164,7 @@ def init_pp48_idx() -> Tuple[List[List[int]], List[int], List[int]]:
     MAX_I = 48
     MAX_J = 48
     idx = 0
-    pp48_idx = [[-1] * MAX_J for i in range(MAX_I)]
+    pp48_idx = [[-1] * MAX_J for _ in range(MAX_I)]
     pp48_sq_x = [NOSQUARE] * MAX_PP48_INDEX
     pp48_sq_y = [NOSQUARE] * MAX_PP48_INDEX
 
@@ -190,7 +190,7 @@ def init_ppp48_idx() -> Tuple[List[List[List[int]]], List[int], List[int], List[
     MAX_I = 48
     MAX_J = 48
     MAX_K = 48
-    ppp48_idx = [[[-1] * MAX_I for j in range(MAX_J)] for k in range(MAX_K)]
+    ppp48_idx = [[[-1] * MAX_I for _ in range(MAX_J)] for _ in range(MAX_K)]
     ppp48_sq_x = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_y = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_z = [NOSQUARE] * MAX_PPP48_INDEX
@@ -227,7 +227,7 @@ PPP48_IDX, PPP48_SQ_X, PPP48_SQ_Y, PPP48_SQ_Z = init_ppp48_idx()
 
 
 def init_aaidx() -> Tuple[List[int], List[List[int]]]:
-    aaidx = [[-1] * 64 for y in range(64)]
+    aaidx = [[-1] * 64 for _ in range(64)]
     aabase = [0] * MAX_AAINDEX
 
     idx = 0
@@ -257,7 +257,7 @@ def init_aaa() -> Tuple[List[int], List[List[int]]]:
         aaa_base[a + 1] = accum
 
     # Get aaa_xyz.
-    aaa_xyz = [[-1] * 3 for idx in range(MAX_AAAINDEX)]
+    aaa_xyz = [[-1] * 3 for _ in range(MAX_AAAINDEX)]
 
     idx = 0
     for z in range(64):
@@ -323,8 +323,7 @@ def wsq_to_pidx24(pawn: int) -> int:
     sq = flip_ns(sq)
     sq -= 8  # Down one row
 
-    idx24 = (sq + (sq & 3)) >> 1
-    return idx24
+    return (sq + (sq & 3)) >> 1
 
 def wsq_to_pidx48(pawn: int) -> int:
     sq = pawn
@@ -332,11 +331,10 @@ def wsq_to_pidx48(pawn: int) -> int:
     sq = flip_ns(sq)
     sq -= 8  # Down one row
 
-    idx48 = sq
-    return idx48
+    return sq
 
 def init_ppidx() -> Tuple[List[List[int]], List[int], List[int]]:
-    ppidx = [[-1] * 48 for i in range(24)]
+    ppidx = [[-1] * 48 for _ in range(24)]
     pp_hi24 = [-1] * MAX_PPINDEX
     pp_lo48 = [-1] * MAX_PPINDEX
 
@@ -396,7 +394,7 @@ def norm_kkindex(x: duck_chess.Square, y: duck_chess.Square) -> Tuple[int, int]:
     return x, y
 
 def init_kkidx() -> Tuple[List[List[int]], List[int], List[int]]:
-    kkidx = [[-1] * 64 for x in range(64)]
+    kkidx = [[-1] * 64 for _ in range(64)]
     bksq = [-1] * MAX_KKINDEX
     wksq = [-1] * MAX_KKINDEX
     idx = 0
@@ -441,10 +439,7 @@ def kxk_pctoindex(c: Request) -> int:
 
     ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
 
-    if ki == -1:
-        return NOINDEX
-
-    return ki * BLOCK_Ax + ws[1]
+    return NOINDEX if ki == -1 else ki * BLOCK_Ax + ws[1]
 
 def kapkb_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64 * 64
@@ -587,10 +582,6 @@ def kaakp_pctoindex(c: Request) -> int:
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + aa_combo
 
 def kapkp_pctoindex(c: Request) -> int:
-    BLOCK_A = 64 * 64 * 64
-    BLOCK_B = 64 * 64
-    BLOCK_C = 64
-
     wk = c.white_piece_squares[0]
     wa = c.white_piece_squares[1]
     pawn_a = c.white_piece_squares[2]
@@ -615,13 +606,10 @@ def kapkp_pctoindex(c: Request) -> int:
     if idx_is_empty(pp_slice):
         return NOINDEX
 
-    return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa
+    BLOCK_A = 64 * 64 * 64
+    return pp_slice * BLOCK_A + wk * (64 * 64) + bk * 64 + wa
 
 def kappk_pctoindex(c: Request) -> int:
-    BLOCK_A = 64 * 64 * 64
-    BLOCK_B = 64 * 64
-    BLOCK_C = 64
-
     wk = c.white_piece_squares[0]
     wa = c.white_piece_squares[1]
     pawn_a = c.white_piece_squares[2]
@@ -646,13 +634,10 @@ def kappk_pctoindex(c: Request) -> int:
     if idx_is_empty(pp_slice):
         return NOINDEX
 
-    return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa
+    BLOCK_A = 64 * 64 * 64
+    return pp_slice * BLOCK_A + wk * (64 * 64) + bk * 64 + wa
 
 def kppka_pctoindex(c: Request) -> int:
-    BLOCK_A = 64 * 64 * 64
-    BLOCK_B = 64 * 64
-    BLOCK_C = 64
-
     wk = c.white_piece_squares[0]
     pawn_a = c.white_piece_squares[1]
     pawn_b = c.white_piece_squares[2]
@@ -676,15 +661,12 @@ def kppka_pctoindex(c: Request) -> int:
     if idx_is_empty(pp_slice):
         return NOINDEX
 
-    return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + ba
+    BLOCK_A = 64 * 64 * 64
+    return pp_slice * BLOCK_A + wk * (64 * 64) + bk * 64 + ba
 
 def kabck_pctoindex(c: Request) -> int:
     N_WHITE = 4
     N_BLACK = 1
-    BLOCK_A = 64 * 64 * 64
-    BLOCK_B = 64 * 64
-    BLOCK_C = 64
-
     ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
     ws = c.white_piece_squares[:N_WHITE]
@@ -707,7 +689,8 @@ def kabck_pctoindex(c: Request) -> int:
     if idx_is_empty(ki):
         return NOINDEX
 
-    return ki * BLOCK_A + ws[1] * BLOCK_B + ws[2] * BLOCK_C + ws[3]
+    BLOCK_A = 64 * 64 * 64
+    return ki * BLOCK_A + ws[1] * (64 * 64) + ws[2] * 64 + ws[3]
 
 def kabbk_pctoindex(c: Request) -> int:
     N_WHITE = 4
@@ -773,8 +756,7 @@ def kaabk_pctoindex(c: Request) -> int:
 
 def aaa_getsubi(x: int, y: int, z: int) -> int:
     bse = AAA_BASE[z]
-    calc_idx = x + (y - 1) * y // 2 + bse
-    return calc_idx
+    return x + (y - 1) * y // 2 + bse
 
 def kaaak_pctoindex(c: Request) -> int:
     N_WHITE = 4
@@ -818,16 +800,10 @@ def kaaak_pctoindex(c: Request) -> int:
 
     ai = aaa_getsubi(ws[1], ws[2], ws[3])
 
-    if idx_is_empty(ki) or idx_is_empty(ai):
-        return NOINDEX
-
-    return ki * BLOCK_Ax + ai
+    return NOINDEX if idx_is_empty(ki) or idx_is_empty(ai) else ki * BLOCK_Ax + ai
 
 def kppkp_pctoindex(c: Request) -> int:
     BLOCK_Ax = MAX_PP48_INDEX * 64 * 64
-    BLOCK_Bx = 64 * 64
-    BLOCK_Cx = 64
-
     wk = c.white_piece_squares[0]
     pawn_a = c.white_piece_squares[1]
     pawn_b = c.white_piece_squares[2]
@@ -852,7 +828,8 @@ def kppkp_pctoindex(c: Request) -> int:
     if idx_is_empty(pp48_slice):
         return NOINDEX
 
-    return k * BLOCK_Ax + pp48_slice * BLOCK_Bx + wk * BLOCK_Cx + bk
+    BLOCK_Bx = 64 * 64
+    return k * BLOCK_Ax + pp48_slice * BLOCK_Bx + wk * 64 + bk
 
 def kaakb_pctoindex(c: Request) -> int:
     N_WHITE = 3

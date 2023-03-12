@@ -110,11 +110,11 @@ class Gameplay:
     
     def __init__(self) -> None:
         super().__init__()
-        
+
         pg.init()
         pg.display.set_caption("Duck Chess")
-        
-        
+
+
         self.GAMEOVER = False
         self.font = pg.font.SysFont('Roboto', 25)
         self.duck_move = False
@@ -126,10 +126,10 @@ class Gameplay:
 
         self.FROMMOVE = False
         self.TOMOVE = False
-        self.SQUARE_SIZE = int(70)
-        self.WIDTH = int(800)
-        self.HEIGHT = int(800)
-        self.n = int(20)
+        self.SQUARE_SIZE = 70
+        self.WIDTH = 800
+        self.HEIGHT = 800
+        self.n = 20
 
         self.y_var = int(self.HEIGHT-(self.HEIGHT/6))
         self.SCREEN = pg.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -213,23 +213,15 @@ class Gameplay:
         
     def gameover_screen(self):
         rendered_text = self.font.render("GAME OVER", True, (0, 0, 0))
-        # self.SCREEN.blit(rendered_text,
-        #                     (self.WIDTH/90)+self.n, self.y_var+50)
         if self.no_king:
-            if self.board.turn:
-                OUTCOME = "WHITE WINS"
-            else:
-                OUTCOME = "BLACK WINS"
+            OUTCOME = "WHITE WINS" if self.board.turn else "BLACK WINS"
         OUTCOME = self.board.outcome()
         OUTCOME = str(OUTCOME)
         OUTCOME = OUTCOME.split(" ")
         OUTCOME = OUTCOME[-1]
         OUTCOME = OUTCOME.replace("winner=", "").replace(")", "")
         if OUTCOME == "None":
-            if self.board.turn:
-                OUTCOME = "True"
-            else:
-                OUTCOME = "False"
+            OUTCOME = "True" if self.board.turn else "False"
         if OUTCOME == "True":
             rendered_text = self.font.render("YOU WIN", True, (0, 0, 0))
             # self.SCREEN.blit(rendered_text, rendered_text,
@@ -330,30 +322,27 @@ class Gameplay:
             for event in pg.event.get():
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if Queen_square.collidepoint(pg.mouse.get_pos()):
-                        self.to_move = self.to_move + "q"
+                        self.to_move = f"{self.to_move}q"
                         self.CHOOSINGMOVE = False
                         break
 
                     elif Rook_square.collidepoint(pg.mouse.get_pos()):
-                        self.to_move = self.to_move + "r"
+                        self.to_move = f"{self.to_move}r"
                         self.CHOOSINGMOVE = False
                         break
 
                     elif Bishop_square.collidepoint(pg.mouse.get_pos()):
-                        self.to_move = self.to_move + "b"
+                        self.to_move = f"{self.to_move}b"
                         self.CHOOSINGMOVE = False
                         break
 
                     elif Knight_square.collidepoint(pg.mouse.get_pos()):
-                        self.to_move = self.to_move + "n"
+                        self.to_move = f"{self.to_move}n"
                         self.CHOOSINGMOVE = False
                         break
                 elif event.type == pg.QUIT:
                     pg.quit()
                     sys.exit()
-                else:
-                    pass
-
         self.total_move = self.from_move + self.to_move
         self.board.push_san(self.total_move)
 
@@ -438,7 +427,7 @@ class Gameplay:
 
     def computer_duck_move(self):
         
-        move_list = [i for i in self.board.generate_duck_moves()]
+        move_list = list(self.board.generate_duck_moves())
         self.board.duck_push(random.choice(move_list))
         
     def make_duck_move(self):
@@ -511,7 +500,7 @@ class Gameplay:
         self.SCREEN = pg.display.set_mode((self.WIDTH, self.HEIGHT))
         pg.init()
         while True:
-            self.check_game_over()         
+            self.check_game_over()
             self.SCREEN.fill("WHITE")
 
             if self.GAMEOVER:
@@ -519,34 +508,23 @@ class Gameplay:
                 self.SCREEN.blit(rendered_text, rendered_text,
                                 (self.WIDTH/90)+self.n, self.y_var+50)
                 if self.no_king():
-                    if self.board.turn:
-                        OUTCOME = "WHITE WINS"
-                    else:
-                        OUTCOME = "BLACK WINS"
+                    OUTCOME = "WHITE WINS" if self.board.turn else "BLACK WINS"
                 OUTCOME = self.board.outcome()
                 OUTCOME = str(OUTCOME)
                 OUTCOME = OUTCOME.split(" ")
                 OUTCOME = OUTCOME[-1]
                 OUTCOME = OUTCOME.replace("winner=", "").replace(")", "")
                 if OUTCOME == "None":
-                    if self.board.turn:
-                        OUTCOME = "True"
-                    else:
-                        OUTCOME = "False"
+                    OUTCOME = "True" if self.board.turn else "False"
                 if OUTCOME == "True":
                     rendered_text = self.font.render("YOU WIN", True, (0, 0, 0))
-                    self.SCREEN.blit(rendered_text, rendered_text,
-                                (self.WIDTH/90)+self.n, self.y_var+50)
-
                 elif OUTCOME == "False":
                     rendered_text = self.font.render("YOU LOSE", True, (0, 0, 0))
-                    self.SCREEN.blit(rendered_text, rendered_text,
-                                (self.WIDTH/90)+self.n, self.y_var+50)
-
                 else:
                     rendered_text = self.font.render("YOU DREW", True, (0, 0, 0))
-                    self.SCREEN.blit(rendered_text, rendered_text,
-                                (self.WIDTH/90)+self.n, self.y_var+50)
+                self.SCREEN.blit(rendered_text, rendered_text,
+                            (self.WIDTH/90)+self.n, self.y_var+50)
+
                 self.SCREEN_update()
 
                 pg.time.delay(5000)
@@ -555,7 +533,7 @@ class Gameplay:
 
             if self.board.turn == False:
 
-                    
+
                 self.computer_move()
 
 
@@ -572,10 +550,10 @@ class Gameplay:
                         try:
                             self.rect_moves = []
                             FROMMOVE = True
+                            TOMOVE = True
+
                             while FROMMOVE:
                                 self.get_legal_moves()
-                                TOMOVE = True
-
                                 while TOMOVE:
                                     self.rect_update()
                                     for event in pg.event.get():
@@ -601,14 +579,14 @@ class Gameplay:
                                                     self.CHOOSINGMOVE=True
                                                     self.check_for_promotion()
                                                 self.SCREEN_update()
-                                                
+
                                                 self.check_game_over()
                                                 if self.GAMEOVER == False:
                                                     self.duck_move = True
                                                     self.make_duck_move()
-                                                            
-                                                        
-                                                        
+
+
+
 
                                             elif self.rect_clicked[0] not in self.rect_moves and self.duck_move == False:
 
