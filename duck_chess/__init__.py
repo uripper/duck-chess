@@ -316,15 +316,15 @@ def flip_vertical(bb: Bitboard) -> Bitboard:
     # https://www.duck_chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
     bb = ((bb >> 8) & 0x00ff_00ff_00ff_00ff) | ((bb & 0x00ff_00ff_00ff_00ff) << 8)
     bb = ((bb >> 16) & 0x0000_ffff_0000_ffff) | ((bb & 0x0000_ffff_0000_ffff) << 16)
-    bb = (bb >> 32) | ((bb & 0x0000_0000_ffff_ffff) << 32)
-    return bb
+    return (bb >> 32) | ((bb & 0x0000_0000_ffff_ffff) << 32)
 
 def flip_horizontal(bb: Bitboard) -> Bitboard:
     # https://www.duck_chessprogramming.org/Flipping_Mirroring_and_Rotating#MirrorHorizontally
     bb = ((bb >> 1) & 0x5555_5555_5555_5555) | ((bb & 0x5555_5555_5555_5555) << 1)
     bb = ((bb >> 2) & 0x3333_3333_3333_3333) | ((bb & 0x3333_3333_3333_3333) << 2)
-    bb = ((bb >> 4) & 0x0f0f_0f0f_0f0f_0f0f) | ((bb & 0x0f0f_0f0f_0f0f_0f0f) << 4)
-    return bb
+    return ((bb >> 4) & 0x0F0F_0F0F_0F0F_0F0F) | (
+        (bb & 0x0F0F_0F0F_0F0F_0F0F) << 4
+    )
 
 def flip_diagonal(bb: Bitboard) -> Bitboard:
     # https://www.duck_chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheDiagonal
@@ -428,12 +428,11 @@ def _attack_table(deltas: List[int]) -> Tuple[List[Bitboard], List[Dict[Bitboard
     attack_table = []
 
     for square in SQUARES:
-        attacks = {}
-
         mask = _sliding_attacks(square, 0, deltas) & ~_edges(square)
-        for subset in _carry_rippler(mask):
-            attacks[subset] = _sliding_attacks(square, subset, deltas)
-
+        attacks = {
+            subset: _sliding_attacks(square, subset, deltas)
+            for subset in _carry_rippler(mask)
+        }
         attack_table.append(attacks)
         mask_table.append(mask)
 
@@ -559,7 +558,7 @@ class Move:
         The UCI representation of a null move is ``0000``.
         """
         if self.drop:
-            return duck_symbol(self.drop).upper() + "@" + SQUARE_NAMES[self.to_square]
+            return f"{duck_symbol(self.drop).upper()}@{SQUARE_NAMES[self.to_square]}"
         elif self.promotion:
             try:
                 return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + duck_symbol(self.promotion).upper()
@@ -589,7 +588,7 @@ class Move:
         """
         if uci == "0000":
             return cls.null()
-        elif len(uci) == 4 and "@" == uci[1]:
+        elif len(uci) == 4 and uci[1] == "@":
             try:
                 drop = DUCK_SYMBOLS.index(uci[0].lower())
                 square = SQUARE_NAMES.index(uci[2:])
@@ -598,7 +597,7 @@ class Move:
             return cls(square, square, drop=drop)
         elif 4 <= len(uci) <= 5:
             try:
-                from_square = SQUARE_NAMES.index(uci[0:2])
+                from_square = SQUARE_NAMES.index(uci[:2])
                 to_square = SQUARE_NAMES.index(uci[2:4])
                 promotion = DUCK_SYMBOLS.index(uci[4]) if len(uci) == 5 else None
             except ValueError:
@@ -731,9 +730,7 @@ class BaseBoard:
 
     def piece_at(self, square: Square) -> Optional[Piece]:
         """Gets the :class:`piece <duck_chess.Piece>` at the given square."""
-        piece_type = self.piece_type_at(square)
-        
-        if piece_type:
+        if piece_type := self.piece_type_at(square):
             mask = BB_SQUARES[square]
             color = bool(self.occupied_co[WHITE] & mask)
             return Piece(piece_type, color)
@@ -1003,11 +1000,7 @@ class BaseBoard:
         empty = 0
 
         for square in SQUARES_180:
-            piece = self.piece_at(square)
-
-            if not piece:
-                empty += 1
-            else:
+            if piece := self.piece_at(square):
                 if empty:
                     builder.append(str(empty))
                     empty = 0
@@ -1015,6 +1008,8 @@ class BaseBoard:
                 if promoted and BB_SQUARES[square] & self.promoted:
                     builder.append("~")
 
+            else:
+                empty += 1
             if BB_SQUARES[square] & BB_FILE_H:
                 if empty:
                     builder.append(str(empty))
@@ -1094,10 +1089,10 @@ class BaseBoard:
         """
         Gets a dictionary of :class:`pieces <duck_chess.Piece>` by square index.
         """
-        result = {}
-        for square in scan_reversed(self.occupied & mask):
-            result[square] = typing.cast(Piece, self.piece_at(square))
-        return result
+        return {
+            square: typing.cast(Piece, self.piece_at(square))
+            for square in scan_reversed(self.occupied & mask)
+        }
 
     def _set_piece_map(self, pieces: Mapping[Square, Piece]) -> None:
         self._clear_board()
@@ -1123,7 +1118,7 @@ class BaseBoard:
         n, bb = divmod(n, 4)
         n, q = divmod(n, 6)
 
-        for n1 in range(0, 4):
+        for n1 in range(4):
             n2 = n + (3 - n1) * (4 - n1) // 2 - 5
             if n1 < n2 and 1 <= n2 <= 4:
                 break
@@ -1143,7 +1138,7 @@ class BaseBoard:
 
         # Knights.
         self.knights = BB_EMPTY
-        for i in range(0, 8):
+        for i in range(8):
             if i not in used:
                 if n1 == 0 or n2 == 0:
                     self.knights |= BB_FILES[i] & BB_BACKRANKS
@@ -1152,7 +1147,7 @@ class BaseBoard:
                 n2 -= 1
 
         # RKR.
-        for i in range(0, 8):
+        for i in range(8):
             if i not in used:
                 self.rooks = BB_FILES[i] & BB_BACKRANKS
                 used.append(i)
@@ -1223,7 +1218,6 @@ class BaseBoard:
         n0f = False
         n1f = False
         rf = 0
-        n0s = [0, 4, 7, 9]
         for square in range(A1, H1 + 1):
             bb = BB_SQUARES[square]
             if bb & self.queens:
@@ -1253,6 +1247,7 @@ class BaseBoard:
 
         if n0 < 4 and n1f and qf:
             cc_pos += q * 16
+            n0s = [0, 4, 7, 9]
             krn = n0s[n0] + n1
             cc_pos += krn * 96
             return cc_pos
@@ -1266,9 +1261,7 @@ class BaseBoard:
         builder = []
 
         for square in SQUARES_180:
-            piece = self.piece_at(square)
-
-            if piece:
+            if piece := self.piece_at(square):
                 builder.append(piece.symbol())
             else:
                 builder.append(".")
@@ -1292,13 +1285,7 @@ class BaseBoard:
         builder = []
         for rank_index in (range(7, -1, -1) if orientation else range(8)):
             if borders:
-                builder.append("  ")
-                builder.append("-" * 17)
-                builder.append("\n")
-
-                builder.append(RANK_NAMES[rank_index])
-                builder.append(" ")
-
+                builder.extend(("  ", "-" * 17, "\n", RANK_NAMES[rank_index], " "))
             for i, file_index in enumerate(range(8) if orientation else range(7, -1, -1)):
                 square_index = square(file_index, rank_index)
 
@@ -1307,9 +1294,7 @@ class BaseBoard:
                 elif i > 0:
                     builder.append(" ")
 
-                piece = self.piece_at(square_index)
-
-                if piece:
+                if piece := self.piece_at(square_index):
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
                 else:
                     builder.append(empty_square)
@@ -1321,11 +1306,9 @@ class BaseBoard:
                 builder.append("\n")
 
         if borders:
-            builder.append("  ")
-            builder.append("-" * 17)
-            builder.append("\n")
+            builder.extend(("  ", "-" * 17, "\n"))
             letters = "a b c d e f g h" if orientation else "h g f e d c b a"
-            builder.append("   " + letters)
+            builder.append(f"   {letters}")
 
         return "".join(builder)
 
@@ -1334,19 +1317,21 @@ class BaseBoard:
         return duck_chess.svg.board(board=self, size=400)
 
     def __eq__(self, board: object) -> bool:
-        if not isinstance(board, BaseBoard):
-            return (
-                self.occupied == board.occupied and
-                self.occupied_co[WHITE] == board.occupied_co[WHITE] and
-                self.pawns == board.pawns and
-                self.knights == board.knights and
-                self.bishops == board.bishops and
-                self.rooks == board.rooks and
-                self.queens == board.queens and
-                self.kings == board.kings and
-                self.ducks == board.ducks)
-        else:
-            return NotImplemented
+        return (
+            NotImplemented
+            if isinstance(board, BaseBoard)
+            else (
+                self.occupied == board.occupied
+                and self.occupied_co[WHITE] == board.occupied_co[WHITE]
+                and self.pawns == board.pawns
+                and self.knights == board.knights
+                and self.bishops == board.bishops
+                and self.rooks == board.rooks
+                and self.queens == board.queens
+                and self.kings == board.kings
+                and self.ducks == board.ducks
+            )
+        )
 
     def apply_transform(self, f: Callable[[Bitboard], Bitboard]) -> None:
         self.pawns = f(self.pawns)
@@ -1712,12 +1697,11 @@ class Board(BaseBoard):
 
     def root(self: BoardT) -> BoardT:
         """Returns a copy of the root position."""
-        if self._stack:
-            board = type(self)(None, duck_chess960=self.duck_chess960)
-            self._stack[0].restore(board)
-            return board
-        else:
+        if not self._stack:
             return self.copy(stack=False)
+        board = type(self)(None, duck_chess960=self.duck_chess960)
+        self._stack[0].restore(board)
+        return board
 
     def find_duck(self, color: Color) -> Optional[Square]:
         """
@@ -1756,9 +1740,7 @@ class Board(BaseBoard):
         curr_duck = self.find_duck(self.turn)
         if curr_duck is None:
             curr_duck = self.find_duck(not self.turn)
-        if curr_duck is None:
-            pass
-        else:
+        if curr_duck is not None:
             return curr_duck
     
     
@@ -1772,8 +1754,8 @@ class Board(BaseBoard):
         # You can place a duck on any square that is not occupied
         piece = self.pockets[self.duck_turn]
         from_square = self.duck_square(self.duck_turn)
-        if from_square == None:
-            for to_square in scan_reversed(drop_mask & ~self.occupied):
+        if from_square is None:
+            for _ in scan_reversed(drop_mask & ~self.occupied):
                 yield Move.null()
         else:
             for to_square in scan_reversed(self.occupied_co[self.duck_turn] & to_mask):
@@ -2062,10 +2044,7 @@ class Board(BaseBoard):
         if self.is_check():
             return False
 
-        if self.is_variant_end():
-            return False
-
-        return not any(self.generate_legal_moves())
+        return False if self.is_variant_end() else not any(self.generate_legal_moves())
 
     def is_insufficient_material(self) -> bool:
         """
@@ -2440,14 +2419,14 @@ class Board(BaseBoard):
         if not castling_rights:
             return "-"
 
-        builder = []
-
-        for square in scan_reversed(castling_rights & BB_RANK_1):
-            builder.append(FILE_NAMES[square_file(square)].upper())
-
-        for square in scan_reversed(castling_rights & BB_RANK_8):
-            builder.append(FILE_NAMES[square_file(square)])
-
+        builder = [
+            FILE_NAMES[square_file(square)].upper()
+            for square in scan_reversed(castling_rights & BB_RANK_1)
+        ]
+        builder.extend(
+            FILE_NAMES[square_file(square)]
+            for square in scan_reversed(castling_rights & BB_RANK_8)
+        )
         return "".join(builder)
 
     def castling_xfen(self) -> str:
@@ -2474,10 +2453,7 @@ class Board(BaseBoard):
 
                 builder.append(ch.upper() if color == WHITE else ch)
 
-        if builder:
-            return "".join(builder)
-        else:
-            return "-"
+        return "".join(builder) if builder else "-"
 
     def has_pseudo_legal_en_passant(self) -> bool:
         """Checks if there is a pseudo-legal en passant capture."""
@@ -2697,17 +2673,16 @@ class Board(BaseBoard):
         if self.ep_square:
             return None
 
-        if not ignore_turn:
-            if self.turn != WHITE:
-                return None
+        if not ignore_turn and self.turn != WHITE:
+            return None
 
-        if not ignore_castling:
-            if self.clean_castling_rights() != self.rooks:
-                return None
+        if not ignore_castling and self.clean_castling_rights() != self.rooks:
+            return None
 
-        if not ignore_counters:
-            if self.fullmove_number != 1 or self.halfmove_clock != 0:
-                return None
+        if not ignore_counters and (
+            self.fullmove_number != 1 or self.halfmove_clock != 0
+        ):
+            return None
 
         return super().duck_chess960_pos()
 
@@ -2728,9 +2703,7 @@ class Board(BaseBoard):
             if operand is None:
                 epd.append(";")
             elif isinstance(operand, Move):
-                epd.append(" ")
-                epd.append(self.san(operand))
-                epd.append(";")
+                epd.extend((" ", self.san(operand), ";"))
             elif isinstance(operand, int):
                 epd.append(f" {operand};")
             elif isinstance(operand, float):
@@ -2739,20 +2712,25 @@ class Board(BaseBoard):
             elif opcode == "pv" and not isinstance(operand, str) and hasattr(operand, "__iter__"):
                 position = self.copy(stack=False)
                 for move in operand:
-                    epd.append(" ")
-                    epd.append(position.san_and_push(move))
+                    epd.extend((" ", position.san_and_push(move)))
                 epd.append(";")
             elif opcode in ["am", "bm"] and not isinstance(operand, str) and hasattr(operand, "__iter__"):
                 for san in sorted(self.san(move) for move in operand):
-                    epd.append(" ")
-                    epd.append(san)
+                    epd.extend((" ", san))
                 epd.append(";")
             else:
-                # Append as escaped string.
-                epd.append(" \"")
-                epd.append(str(operand).replace("\\", "\\\\").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n").replace("\"", "\\\""))
-                epd.append("\";")
-
+                epd.extend(
+                    (
+                        " \"",
+                        str(operand)
+                        .replace("\\", "\\\\")
+                        .replace("\t", "\\t")
+                        .replace("\r", "\\r")
+                        .replace("\n", "\\n")
+                        .replace("\"", "\\\""),
+                        "\";",
+                    )
+                )
         return "".join(epd)
 
     def epd(self, *, shredder: bool = False, en_passant: _EnPassantSpec = "legal", promoted: Optional[bool] = None, **operations: Union[None, str, int, float, Move, Iterable[Move]]) -> str:

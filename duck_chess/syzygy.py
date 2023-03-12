@@ -401,9 +401,9 @@ def normalize_tablename(name: str, *, mirror: bool = False) -> str:
     w = "".join(sorted(w, key=PCHR.index))
     b = "".join(sorted(b, key=PCHR.index))
     if mirror ^ ((len(w), [PCHR.index(c) for c in b]) < (len(b), [PCHR.index(c) for c in w])):
-        return b + "v" + w
+        return f"{b}v{w}"
     else:
-        return w + "v" + b
+        return f"{w}v{b}"
 
 
 def _dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
@@ -417,13 +417,13 @@ def _dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
         if p != "P" and "P" in w:
             yield normalize_tablename(w.replace("P", p, 1) + "v" + b)
         if p != "P" and "P" in b:
-            yield normalize_tablename(w + "v" + b.replace("P", p, 1))
+            yield normalize_tablename(f"{w}v" + b.replace("P", p, 1))
 
         # Captures.
         if p in w and len(w) > 1:
             yield normalize_tablename(w.replace(p, "", 1) + "v" + b)
         if p in b and len(b) > 1:
-            yield normalize_tablename(w + "v" + b.replace(p, "", 1))
+            yield normalize_tablename(f"{w}v" + b.replace(p, "", 1))
 
 
 def dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
@@ -701,11 +701,11 @@ class Table:
             i += norm[i]
 
     def calc_factors_piece(self, factor: List[int], order: int, norm: List[int]) -> int:
-        if not self.variant.connected_kings:
-            PIVFAC = [31332, 28056, 462]
-        else:
-            PIVFAC = [31332, 0, 518, 278]
-
+        PIVFAC = (
+            [31332, 0, 518, 278]
+            if self.variant.connected_kings
+            else [31332, 28056, 462]
+        )
         n = 64 - norm[0]
 
         f = 1
@@ -890,9 +890,7 @@ class Table:
 
             for m in range(i, i + t):
                 p = pos[m]
-                j = 0
-                for l in range(i):
-                    j += int(p > pos[l])
+                j = sum(int(p > pos[l]) for l in range(i))
                 s += binom(p - j, m - i + 1)
 
             idx += s * factor[i]
@@ -929,9 +927,7 @@ class Table:
             s = 0
             for m in range(i, t):
                 p = pos[m]
-                j = 0
-                for k in range(i):
-                    j += int(p > pos[k])
+                j = sum(int(p > pos[k]) for k in range(i))
                 s += binom(p - j - 8, m - i + 1)
             idx += s * factor[i]
             i = t
@@ -946,9 +942,7 @@ class Table:
             s = 0
             for m in range(i, i + t):
                 p = pos[m]
-                j = 0
-                for k in range(i):
-                    j += int(p > pos[k])
+                j = sum(int(p > pos[k]) for k in range(i))
                 s += binom(p - j, m - i + 1)
 
             idx += s * factor[i]
@@ -1206,22 +1200,21 @@ class WdlTable(Table):
 
         key = calc_key(board)
 
-        if not self.symmetric:
-            if key != self.key:
-                cmirror = 8
-                mirror = 0x38
-                bside = int(board.turn == duck_chess.WHITE)
-            else:
-                cmirror = mirror = 0
-                bside = int(board.turn != duck_chess.WHITE)
-        else:
+        if self.symmetric:
             cmirror = 0 if board.turn == duck_chess.WHITE else 8
             mirror = 0 if board.turn == duck_chess.WHITE else 0x38
             bside = 0
 
+        elif key != self.key:
+            cmirror = 8
+            mirror = 0x38
+            bside = int(board.turn == duck_chess.WHITE)
+        else:
+            cmirror = mirror = 0
+            bside = int(board.turn != duck_chess.WHITE)
+        p = [0 for _ in range(TBPIECES)]
+        i = 0
         if not self.has_pawns:
-            p = [0 for _ in range(TBPIECES)]
-            i = 0
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
@@ -1234,8 +1227,6 @@ class WdlTable(Table):
             idx = self.encode_piece(self.norm[bside], p, self.factor[bside])
             res = self.decompress_pairs(self.precomp[bside], idx)
         else:
-            p = [0 for _ in range(TBPIECES)]
-            i = 0
             k = self.files[0].pieces[0][0] ^ cmirror
             color = k >> 3
             piece_type = k & 0x07

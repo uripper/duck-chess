@@ -54,10 +54,7 @@ class DuckPocket:
         self.duck = ""
         
     def add(self) -> None:
-        if self.duck_turn:
-            self.duck = "z"
-        else:
-            self.duck = "Z"
+        self.duck = "z" if self.duck_turn else "Z"
     def count(self) -> int:
         return len(self.duck)
     
@@ -96,7 +93,7 @@ class DuckBoard(duck_chess.Board):
         return self.is_insufficient_material() or self.is_fifty_moves()
     def is_variant_loss(self) -> bool:
         
-        return self.king(self.turn) == None
+        return self.king(self.turn) is None
     
     def reset_board(self) -> None:
         super().reset_board()
@@ -111,13 +108,11 @@ class DuckBoard(duck_chess.Board):
     def clear_duck(self) -> None:
         #delete all the duck pieces on the board
         duck_loc = self.find_duck(self.turn)
-        if duck_loc == None:
+        if duck_loc is None:
             duck_loc = self.find_duck(not self.turn)
         if duck_loc != None:
             self.remove_piece_at(duck_loc)
             self.clear_duck()
-        else:
-            pass
     
     def _board_state(self: DuckBoardT) -> _DuckBoardState[DuckBoardT]:
         return _DuckBoardState(self)
@@ -140,9 +135,8 @@ class DuckBoard(duck_chess.Board):
 
         if str(move).startswith("z@") or str(move).startswith("Z@"):
             raise ValueError(f"Move a piece with push before moving the duck, move was {move}")
-        else:
-            super().push(move)
-            self.duck_move = True
+        super().push(move)
+        self.duck_move = True
             
             
     

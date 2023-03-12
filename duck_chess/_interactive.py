@@ -186,5 +186,4 @@ class InteractiveViewer:
             if self.__board.is_check()
             else None,
         )
-        svg_widget = HTML(value=svg, layout=Layout(grid_area="top"))
-        return svg_widget
+        return HTML(value=svg, layout=Layout(grid_area="top"))
